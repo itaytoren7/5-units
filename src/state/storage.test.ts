@@ -7,7 +7,7 @@ describe('state storage', () => {
     expect(sanitizeState(null)).toEqual(defaultState());
     expect(sanitizeState('nope')).toEqual(defaultState());
     expect(sanitizeState({ theme: 'neon', ratings: { a: 'great', b: 'weak' }, examDates: { '35581': 'soon', '35582': '2026-07-01' } })).toMatchObject({
-      theme: 'system',
+      theme: 'light',
       ratings: { b: 'weak' },
       examDates: { '35582': '2026-07-01' },
     });

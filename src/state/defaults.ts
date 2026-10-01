@@ -5,7 +5,7 @@ export const STORAGE_KEY = 'bagrut:v1';
 export function defaultState(): SavedState {
   return {
     version: 1,
-    theme: 'system',
+    theme: 'light',
     focusMode: 'focus-2026',
     examDates: {},
     ratings: {},

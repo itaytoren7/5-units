@@ -14,7 +14,7 @@
     <script>
       try {
         var s = JSON.parse(localStorage.getItem('bagrut:v1') || '{}');
-        var t = s.theme === 'dark' || s.theme === 'light' ? s.theme : (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        var t = s.theme === 'dark' || s.theme === 'light' ? s.theme : (s.theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
         document.documentElement.dataset.theme = t;
       } catch (e) {}
     </script>
