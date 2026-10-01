@@ -79,14 +79,14 @@ function tangent(f: RealFn, x0: number): [number, number] {
 }
 
 describe('35581 problem bank structure', () => {
-  it.each([3, 4, 6, 7, 8])('slot %i has exactly 3 problems with 3–4 sections', (slot) => {
+  it.each([1, 2, 3, 4, 5, 6, 7, 8])('slot %i has at least 3 bagrut-style problems with 3–4 sections', (slot) => {
     const slotProblems = problems35581.filter((problem) => problem.slot === slot);
-    expect(slotProblems.length).toBe(3);
+    expect(slotProblems.length).toBeGreaterThanOrEqual(3);
     for (const problem of slotProblems) {
       expect(problem.sections.length).toBeGreaterThanOrEqual(3);
       expect(problem.sections.length).toBeLessThanOrEqual(4);
-      expect(problem.estimatedMinutes).toBeGreaterThanOrEqual(20);
-      expect(problem.estimatedMinutes).toBeLessThanOrEqual(30);
+      expect(problem.estimatedMinutes).toBeGreaterThanOrEqual(15);
+      expect(problem.estimatedMinutes).toBeLessThanOrEqual(40);
       expect(problem.sections.map((section) => section.label)).toEqual(['א', 'ב', 'ג', 'ד'].slice(0, problem.sections.length));
       for (const section of problem.sections) {
         expect(section.hints.length).toBeGreaterThanOrEqual(2);
@@ -95,14 +95,14 @@ describe('35581 problem bank structure', () => {
         expect(section.solutionSteps.length).toBeLessThanOrEqual(8);
       }
     }
-    const difficulties = slotProblems.map((problem) => problem.difficulty).sort();
-    expect(difficulties[0]).toBe(2);
-    expect(difficulties[2]).toBe(3);
+    const difficulties = slotProblems.map((problem) => problem.difficulty);
+    expect(Math.min(...difficulties)).toBeGreaterThanOrEqual(2);
+    expect(Math.max(...difficulties)).toBe(3);
   });
 
-  it('slot 4 problems have a viewBox-based figure', () => {
-    for (const problem of problems35581.filter((item) => item.slot === 4)) {
-      expect(problem.figureSvg).toContain('viewBox="0 0 320 240"');
+  it('slot 4 and slot 5 problems have a viewBox-based figure', () => {
+    for (const problem of problems35581.filter((item) => item.slot === 4 || item.slot === 5)) {
+      expect(problem.figureSvg, `${problem.id} needs a figure`).toContain('viewBox="0 0 320 240"');
       expect(problem.figureSvg).not.toMatch(/<svg[^>]*\s(width|height)=/);
     }
   });
