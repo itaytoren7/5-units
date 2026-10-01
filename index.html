@@ -3,22 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#f5f6fa" />
+    <meta name="theme-color" content="#F7F8FA" />
     <meta name="description" content="מרכז הלמידה האישי לבגרות במתמטיקה 5 יחידות — שאלונים 35581 ו-35582 לפי המיקוד לקיץ 2026" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="חמש יחידות" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <title>חמש יחידות — מרכז הלמידה שלי</title>
     <script>
       try {
         var s = JSON.parse(localStorage.getItem('bagrut:v1') || '{}');
-        var t = s.theme === 'dark' || s.theme === 'light' ? s.theme : (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        var t = s.theme === 'dark' || s.theme === 'light' ? s.theme : (s.theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
         document.documentElement.dataset.theme = t;
+        var m = JSON.parse(localStorage.getItem('bagrut:v1:motivation') || '{}');
+        if (m.reducedMotion) document.documentElement.dataset.motion = 'reduced';
       } catch (e) {}
     </script>
   </head>

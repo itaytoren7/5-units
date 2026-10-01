@@ -198,8 +198,9 @@ export function clearState(): void {
   }
 }
 
-export function exportState(state: SavedState): string {
-  return JSON.stringify({ ...state, exportedAt: new Date().toISOString() }, null, 2);
+/** `extra` lets additive layers (e.g. motivation) ride along in the backup as optional fields; old backups without them import fine. */
+export function exportState(state: SavedState, extra: Record<string, unknown> = {}): string {
+  return JSON.stringify({ ...state, ...extra, exportedAt: new Date().toISOString() }, null, 2);
 }
 
 export function parseImportedState(text: string): SavedState {

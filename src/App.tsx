@@ -16,6 +16,7 @@ const SimulatorPage = lazy(() => import('./pages/SimulatorPage').then((module) =
 const PlannerPage = lazy(() => import('./pages/PlannerPage').then((module) => ({ default: module.PlannerPage })));
 const MistakesPage = lazy(() => import('./pages/MistakesPage').then((module) => ({ default: module.MistakesPage })));
 const PastExamsPage = lazy(() => import('./pages/PastExamsPage').then((module) => ({ default: module.PastExamsPage })));
+const DesignPreview = lazy(() => import('./pages/DesignPreview').then((module) => ({ default: module.DesignPreview })));
 const FormulaSheetPage = lazy(() => import('./pages/FormulaSheetPage').then((module) => ({ default: module.FormulaSheetPage })));
 
 function Loading() {
@@ -45,6 +46,7 @@ export default function App() {
           <Route path="/formulas" element={<FormulaSheetPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/more" element={<MorePage />} />
+          <Route path="/design-preview" element={<DesignPreview />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>

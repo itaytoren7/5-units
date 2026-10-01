@@ -70,7 +70,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     document.documentElement.dataset.theme = resolvedTheme;
     const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-    if (meta) meta.content = resolvedTheme === 'dark' ? '#12131c' : '#f5f6fa';
+    if (meta) meta.content = resolvedTheme === 'dark' ? '#0F1117' : '#F7F8FA';
   }, [resolvedTheme]);
 
   const notify = useCallback((message: string) => {

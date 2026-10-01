@@ -5,7 +5,7 @@ import { problemsFor } from '@/data/problems';
 import type { QuestionnaireCode } from '@/data/problems/types';
 import { ProblemCard } from '../components/ProblemCard';
 import { PriorityBadge } from '../components/StatusBadge';
-import { Button, EmptyState, PageHeader, Segmented, Stat } from '../components/ui';
+import { Button, EmptyState, PageHeader, Segmented, Stat, Tabs } from '../components/ui';
 import { isQuestionnaireCode, questionnaireByCode, questionnaireList } from '../lib/questionnaires';
 import { problemStatus, type ProblemStatus } from '../lib/selectors';
 import { useStore } from '../state/store';
@@ -51,55 +51,54 @@ export function PracticeHub() {
         title="תרגול"
         description="תרגילים בסגנון בגרות, רק על החומר שבמיקוד. כל תרגיל: רמזים בהדרגה, פתרון מלא, והערכה עצמית לכל סעיף."
         actions={
-          <Button variant="primary" icon={<Shuffle size={16} />} onClick={random} disabled={!all.length}>
+          <Button variant="primary" size="lg" icon={<Shuffle size={18} />} onClick={random} disabled={!all.length}>
             תרגיל אקראי
           </Button>
         }
       />
 
-      <div className="mb-4 flex flex-col gap-3">
-        <Segmented label="שאלון" value={code} onChange={(next) => setParam('code', next)} options={questionnaireList.map((entry) => ({ value: entry.code, label: `שאלון ${entry.nickname}` }))} />
-        <div className="flex flex-wrap items-center gap-2">
-          <Segmented
-            label="שאלה"
-            value={slotParam}
-            onChange={(next) => setParam('slot', next)}
-            options={[{ value: 'all', label: 'כל השאלות' }, ...slotsWithProblems.map((slot) => ({ value: String(slot.number), label: `שאלה ${slot.number}`, title: slot.title }))]}
-          />
-          <Segmented
-            label="סטטוס"
-            value={statusParam}
-            onChange={(next) => setParam('status', next)}
-            options={[
-              { value: 'all', label: 'הכול' },
-              { value: 'new', label: 'לא תורגל' },
-              { value: 'needs-review', label: 'לחזור' },
-              { value: 'done', label: 'הושלם' },
-            ]}
-          />
-        </div>
-      </div>
+      <Tabs label="שאלון" value={code} onChange={(next) => setParam('code', next)} options={questionnaireList.map((entry) => ({ value: entry.code as QuestionnaireCode, label: `שאלון ${entry.nickname}`, count: problemsFor(entry.code as QuestionnaireCode).length }))} className="mb-5" />
 
-      <div className="mb-5 grid grid-cols-3 gap-2">
+      <div className="mb-5 grid grid-cols-3 gap-3">
         <Stat label="תרגילים במאגר" value={all.length} />
         <Stat label="תרגלת" value={counts.practiced} tone="primary" />
         <Stat label="לחזור" value={counts.review} tone={counts.review ? 'red' : 'neutral'} />
       </div>
 
+      <div className="mb-6 flex flex-wrap items-center gap-2">
+        <Segmented
+          label="שאלה"
+          value={slotParam}
+          onChange={(next) => setParam('slot', next)}
+          options={[{ value: 'all', label: 'כל השאלות' }, ...slotsWithProblems.map((slot) => ({ value: String(slot.number), label: `שאלה ${slot.number}`, title: slot.title }))]}
+        />
+        <Segmented
+          label="סטטוס"
+          value={statusParam}
+          onChange={(next) => setParam('status', next)}
+          options={[
+            { value: 'all', label: 'הכול' },
+            { value: 'new', label: 'לא תורגל' },
+            { value: 'needs-review', label: 'לחזור' },
+            { value: 'done', label: 'הושלם' },
+          ]}
+        />
+      </div>
+
       {filtered.length === 0 ? (
-        <EmptyState icon={<PencilLine size={20} />} title="אין תרגילים בסינון הזה" description="נסו סינון אחר, או חזרו לכל השאלות." />
+        <EmptyState icon={<PencilLine size={22} />} title="אין תרגילים בסינון הזה" description="נסו סינון אחר, או חזרו לכל השאלות." />
       ) : (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-8">
           {questionnaire.slots
             .filter((slot) => filtered.some((problem) => problem.slot === slot.number))
             .map((slot) => (
               <section key={slot.number}>
-                <div className="mb-2 flex flex-wrap items-center gap-2">
-                  <span className={`grid h-8 w-8 place-items-center rounded-lg text-sm font-extrabold ${slot.priority === 'yellow' ? 'bg-yellow-soft text-yellow' : 'bg-blue-soft text-blue'}`}>{slot.number}</span>
-                  <h2 className="font-bold">{slot.title}</h2>
+                <div className="mb-3 flex flex-wrap items-center gap-3">
+                  <span className={`grid h-10 w-10 place-items-center rounded-xl text-base font-bold ${slot.priority === 'yellow' ? 'bg-yellow-soft text-yellow' : 'bg-blue-soft text-blue'}`}>{slot.number}</span>
+                  <h2 className="text-xl font-bold">{slot.title}</h2>
                   <PriorityBadge priority={slot.priority} />
                 </div>
-                <div className="grid gap-3 sm:grid-cols-2">
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                   {filtered
                     .filter((problem) => problem.slot === slot.number)
                     .map((problem) => (

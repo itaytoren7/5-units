@@ -1,6 +1,6 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { AlertTriangle, BookOpen, CalendarDays, History, Home, Monitor, Moon, MoreHorizontal, PencilLine, Settings, Sigma, Sun, Timer } from 'lucide-react';
+import { AlertTriangle, BookOpen, CalendarDays, History, Home, Monitor, Moon, MoreHorizontal, PencilLine, Settings, Sigma, Sun, Timer, X } from 'lucide-react';
 import { useStore } from '../state/store';
 import type { Theme } from '../state/types';
 
@@ -27,13 +27,20 @@ export const secondaryNav: NavEntry[] = [
   { to: '/settings', label: 'הגדרות', description: 'תאריכי בחינה, מיקוד, גיבוי', icon: Settings },
 ];
 
+const sidebarGroups: Array<{ label?: string; items: NavEntry[] }> = [
+  { items: [primaryNav[0]] },
+  { label: 'למידה', items: primaryNav.slice(1) },
+  { label: 'כלים', items: secondaryNav.slice(0, 4) },
+  { items: [secondaryNav[4]] },
+];
+
 const themeOptions: Array<{ value: Theme; icon: typeof Sun; label: string }> = [
   { value: 'light', icon: Sun, label: 'בהיר' },
   { value: 'dark', icon: Moon, label: 'כהה' },
   { value: 'system', icon: Monitor, label: 'לפי המערכת' },
 ];
 
-function ThemePicker({ compact = false }: { compact?: boolean }) {
+export function ThemePicker({ compact = false }: { compact?: boolean }) {
   const { state, actions } = useStore();
   if (compact) {
     const next: Theme = state.theme === 'light' ? 'dark' : state.theme === 'dark' ? 'system' : 'light';
@@ -46,13 +53,13 @@ function ThemePicker({ compact = false }: { compact?: boolean }) {
     );
   }
   return (
-    <div className="seg w-full" role="radiogroup" aria-label="ערכת נושא">
+    <div className="seg seg-fill" role="radiogroup" aria-label="ערכת נושא">
       {themeOptions.map((option) => {
         const Icon = option.icon;
         return (
-          <button key={option.value} type="button" role="radio" aria-checked={state.theme === option.value} title={option.label} className="flex-1" onClick={() => actions.setTheme(option.value)}>
-            <Icon size={16} className="mx-auto" aria-hidden="true" />
-            <span className="sr-only">{option.label}</span>
+          <button key={option.value} type="button" role="radio" aria-checked={state.theme === option.value} title={option.label} onClick={() => actions.setTheme(option.value)}>
+            <Icon size={16} aria-hidden="true" />
+            <span className="sr-only lg:not-sr-only">{option.label}</span>
           </button>
         );
       })}
@@ -60,13 +67,13 @@ function ThemePicker({ compact = false }: { compact?: boolean }) {
   );
 }
 
-function Brand() {
+function Brand({ onClick }: { onClick?: () => void }) {
   return (
-    <NavLink to="/" className="flex items-center gap-2.5 font-extrabold">
-      <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-lg text-on-primary shadow-sm">5</span>
+    <NavLink to="/" className="flex items-center gap-3 font-bold" onClick={onClick}>
+      <span className="brand-mark">5</span>
       <span className="leading-tight">
         חמש יחידות
-        <small className="block text-[11px] font-medium text-muted">מרכז הלמידה שלי</small>
+        <small className="block text-xs font-medium text-muted">מרכז הלמידה שלי</small>
       </span>
     </NavLink>
   );
@@ -80,57 +87,121 @@ function ScrollToTop() {
   return null;
 }
 
+function MoreDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = '';
+    };
+  }, [open, onClose]);
+  return (
+    <div className={`drawer-root ${open ? 'drawer-open' : ''}`} aria-hidden={!open}>
+      <button type="button" className="drawer-backdrop" aria-label="סגירת התפריט" onClick={onClose} tabIndex={open ? 0 : -1} />
+      <div className="drawer" role="dialog" aria-modal="true" aria-label="עוד">
+        <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-border" aria-hidden="true" />
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-lg font-bold">עוד</span>
+          <button type="button" className="btn btn-ghost btn-icon" aria-label="סגירה" onClick={onClose}>
+            <X size={20} />
+          </button>
+        </div>
+        <ul className="flex flex-col gap-1">
+          {secondaryNav.map((entry) => (
+            <li key={entry.to}>
+              <NavLink to={entry.to} className="nav-item" onClick={onClose} tabIndex={open ? 0 : -1}>
+                <entry.icon size={20} aria-hidden="true" />
+                <span className="min-w-0 flex-1">
+                  <span className="block">{entry.label}</span>
+                  {entry.description && <span className="block text-sm font-normal text-muted">{entry.description}</span>}
+                </span>
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-4 border-t border-border pt-4">
+          <div className="mb-2 text-sm font-semibold text-muted">ערכת נושא</div>
+          <ThemePicker />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function Layout({ children }: { children: ReactNode }) {
-  const { toast } = useStore();
+  const { toast, state } = useStore();
+  const { pathname } = useLocation();
+  const [moreOpen, setMoreOpen] = useState(false);
+
+  // Distraction-free mode: while a simulation is running on its own page, the navigation steps aside.
+  const focusMode = Boolean(state.activeExam && state.activeExam.phase === 'running' && pathname === `/simulator/${state.activeExam.questionnaire}`);
+
+  useEffect(() => setMoreOpen(false), [pathname]);
+
   return (
     <div className="min-h-dvh">
       <ScrollToTop />
-      <aside className="no-print fixed inset-y-0 inset-s-0 z-30 hidden w-[264px] flex-col border-e border-border bg-surface px-4 py-6 lg:flex" style={{ insetInlineStart: 0 }}>
-        <div className="px-2 pb-6">
+
+      {!focusMode && (
+        <aside className="sidebar no-print" aria-label="ניווט ראשי">
+          <div className="px-3 pb-6 pt-1">
+            <Brand />
+          </div>
+          <nav className="flex flex-1 flex-col gap-1">
+            {sidebarGroups.map((group, index) => (
+              <div key={index} className={index > 0 ? 'mt-3' : ''}>
+                {group.label && <div className="nav-caption">{group.label}</div>}
+                {group.items.map((entry) => (
+                  <NavLink key={entry.to} to={entry.to} end={entry.end} className="nav-item">
+                    <entry.icon size={20} aria-hidden="true" />
+                    {entry.label}
+                  </NavLink>
+                ))}
+              </div>
+            ))}
+          </nav>
+          <div className="mt-auto flex flex-col gap-3 pt-6">
+            <ThemePicker />
+            <p className="px-1 text-xs leading-relaxed text-muted">הנתונים נשמרים במכשיר הזה בלבד. מומלץ לייצא גיבוי מההגדרות מדי פעם.</p>
+          </div>
+        </aside>
+      )}
+
+      {!focusMode && (
+        <header className="mobile-header no-print">
           <Brand />
-        </div>
-        <nav className="flex flex-col gap-1" aria-label="ניווט ראשי">
-          {primaryNav.map((entry) => (
-            <NavLink key={entry.to} to={entry.to} end={entry.end} className="nav-item">
-              <entry.icon size={18} aria-hidden="true" />
-              {entry.label}
-            </NavLink>
-          ))}
-          <div className="px-3 pb-1 pt-4 text-[11px] font-bold tracking-wide text-muted">כלים</div>
-          {secondaryNav.map((entry) => (
-            <NavLink key={entry.to} to={entry.to} className="nav-item">
-              <entry.icon size={18} aria-hidden="true" />
-              {entry.label}
-            </NavLink>
-          ))}
-        </nav>
-        <div className="mt-auto flex flex-col gap-3 pt-6">
-          <ThemePicker />
-          <p className="px-1 text-[11px] leading-relaxed text-muted">הנתונים נשמרים במכשיר הזה בלבד. מומלץ לייצא גיבוי מדי פעם מההגדרות.</p>
-        </div>
-      </aside>
+          <ThemePicker compact />
+        </header>
+      )}
 
-      <header className="no-print sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-surface/90 px-4 backdrop-blur lg:hidden">
-        <Brand />
-        <ThemePicker compact />
-      </header>
-
-      <main className="mx-auto w-full max-w-5xl px-4 pb-28 pt-4 sm:px-6 lg:ms-[264px] lg:max-w-[calc(100%-264px)] lg:px-10 lg:pb-16 lg:pt-8 xl:max-w-5xl xl:ms-[calc(264px+(100%-264px-64rem)/2)]">
-        {children}
+      <main className={`${focusMode ? '' : 'main-shell'} min-w-0`}>
+        <div key={pathname} className={`page-enter mx-auto w-full max-w-[1120px] px-4 pb-28 pt-5 sm:px-6 lg:px-10 lg:pb-16 lg:pt-10 ${focusMode ? 'lg:pt-6' : ''}`}>
+          {children}
+        </div>
       </main>
 
-      <nav className="no-print fixed inset-x-0 bottom-0 z-30 flex items-stretch justify-around border-t border-border bg-surface/95 px-1 pt-1 backdrop-blur lg:hidden" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 4px)' }} aria-label="ניווט תחתון">
-        {primaryNav.map((entry) => (
-          <NavLink key={entry.to} to={entry.to} end={entry.end} className="tab-item">
-            <entry.icon size={21} aria-hidden="true" />
-            {entry.label}
-          </NavLink>
-        ))}
-        <NavLink to="/more" className="tab-item">
-          <MoreHorizontal size={21} aria-hidden="true" />
-          עוד
-        </NavLink>
-      </nav>
+      {!focusMode && (
+        <>
+          <nav className="tabbar no-print" aria-label="ניווט תחתון">
+            {primaryNav.map((entry) => (
+              <NavLink key={entry.to} to={entry.to} end={entry.end} className="tab-item">
+                <entry.icon size={22} aria-hidden="true" />
+                {entry.label}
+              </NavLink>
+            ))}
+            <button type="button" className="tab-item" aria-expanded={moreOpen} aria-haspopup="dialog" onClick={() => setMoreOpen(true)}>
+              <MoreHorizontal size={22} aria-hidden="true" />
+              עוד
+            </button>
+          </nav>
+          <MoreDrawer open={moreOpen} onClose={() => setMoreOpen(false)} />
+        </>
+      )}
 
       {toast && (
         <div className="toast" role="status" aria-live="polite">

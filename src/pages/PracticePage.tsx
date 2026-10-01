@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Check, CircleAlert, CircleCheck, Eye, Flag, Lightbulb, Pause, Play, RotateCcw } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, CircleAlert, CircleCheck, CircleX, Eye, Flag, Lightbulb, MinusCircle, Pause, Play, RotateCcw } from 'lucide-react';
 import type { Problem, ProblemSection } from '@/data/problems/types';
 import { problemById, problemsFor } from '@/data/problems';
 import { Figure } from '../components/Figure';
@@ -8,7 +8,8 @@ import { Markdown } from '../components/Markdown';
 import { MistakeForm } from '../components/MistakeForm';
 import { DifficultyBadge } from '../components/ProblemCard';
 import { PriorityBadge } from '../components/StatusBadge';
-import { Badge, Button, Card, Notice, PageHeader } from '../components/ui';
+import { Badge, Button, Card, Collapse, Notice, PageHeader } from '../components/ui';
+import { useActiveSection } from '../components/useActiveSection';
 import { formatClock } from '../lib/dates';
 import { questionnaireByCode, slotOf, topicOf } from '../lib/questionnaires';
 import { useStore } from '../state/store';
@@ -17,6 +18,7 @@ import { NotFound } from './NotFound';
 
 const resultLabels: Record<SectionResult, string> = { correct: 'צדקתי', partial: 'חלקית', wrong: 'טעיתי' };
 const resultTone: Record<SectionResult, 'green' | 'orange' | 'red'> = { correct: 'green', partial: 'orange', wrong: 'red' };
+const resultIcon: Record<SectionResult, typeof Check> = { correct: CircleCheck, partial: MinusCircle, wrong: CircleX };
 
 function Stopwatch({ problemId }: { problemId: string }) {
   const [elapsed, setElapsed] = useState(0);
@@ -31,12 +33,21 @@ function Stopwatch({ problemId }: { problemId: string }) {
     return () => window.clearInterval(timer);
   }, [running]);
   return (
-    <div className="flex items-center gap-1 rounded-xl bg-surface-2 px-2 py-1">
-      <span className="timer-digits min-w-[3.5rem] text-center font-bold" aria-live="off">
+    <div className="flex items-center gap-1.5 rounded-2xl bg-surface-2 px-3 py-2">
+      <span className="timer-digits min-w-[4rem] text-center text-xl font-bold" aria-live="off">
         {formatClock(elapsed)}
       </span>
-      <Button size="sm" variant="ghost" icon={running ? <Pause size={14} /> : <Play size={14} />} aria-label={running ? 'עצירת שעון' : 'הפעלת שעון'} onClick={() => setRunning(!running)} />
-      <Button size="sm" variant="ghost" icon={<RotateCcw size={14} />} aria-label="איפוס שעון" onClick={() => { setRunning(false); setElapsed(0); }} />
+      <Button size="sm" variant="ghost" icon={running ? <Pause size={16} /> : <Play size={16} />} aria-label={running ? 'עצירת שעון' : 'הפעלת שעון'} onClick={() => setRunning(!running)} />
+      <Button
+        size="sm"
+        variant="ghost"
+        icon={<RotateCcw size={16} />}
+        aria-label="איפוס שעון"
+        onClick={() => {
+          setRunning(false);
+          setElapsed(0);
+        }}
+      />
     </div>
   );
 }
@@ -61,77 +72,98 @@ function SectionCard({ problem, section, index }: { problem: Problem; section: P
   };
 
   return (
-    <Card as="article" className="flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-2">
-        <h2 className="text-base font-extrabold">
-          סעיף {section.label} <span className="text-xs font-medium text-muted">({index + 1}/{problem.sections.length})</span>
-        </h2>
+    <Card as="article" className="scroll-mt-24">
+      <div id={`section-${section.id}`} className="mb-4 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <span className="section-label" aria-hidden="true">
+            {section.label}
+          </span>
+          <h2 className="text-xl font-bold">
+            סעיף {section.label} <span className="text-sm font-medium text-muted">· {index + 1} מתוך {problem.sections.length}</span>
+          </h2>
+        </div>
         {result && <Badge tone={resultTone[result]}>{resultLabels[result]}</Badge>}
       </div>
-      <Markdown className="text-[15px] leading-relaxed">{section.statement}</Markdown>
 
-      {hintsShown > 0 && (
-        <ol className="flex flex-col gap-1.5">
-          {section.hints.slice(0, hintsShown).map((hint, hintIndex) => (
-            <li key={hintIndex} className="hint-enter flex items-start gap-2 rounded-xl bg-yellow-soft px-3 py-2 text-sm text-yellow">
-              <Lightbulb size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
-              <Markdown inline className="min-w-0 text-text">
-                {hint}
-              </Markdown>
-            </li>
-          ))}
-        </ol>
-      )}
+      <div className="prose">
+        <Markdown className="text-lg leading-relaxed">{section.statement}</Markdown>
+      </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="mt-4 flex flex-col gap-2">
+        {section.hints.map((hint, hintIndex) => (
+          <Collapse key={hintIndex} open={hintIndex < hintsShown}>
+            <div className="hint-box prose mb-1">
+              <Lightbulb size={18} className="mt-0.5 shrink-0 text-yellow" aria-hidden="true" />
+              <div className="min-w-0 text-base">
+                <span className="me-1 text-sm font-bold text-yellow">רמז {hintIndex + 1}</span>
+                <Markdown inline>{hint}</Markdown>
+              </div>
+            </div>
+          </Collapse>
+        ))}
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-2">
         {hintsShown < section.hints.length && (
-          <Button size="sm" icon={<Lightbulb size={14} />} onClick={() => setHintsShown(hintsShown + 1)}>
+          <Button variant="soft" icon={<Lightbulb size={16} />} onClick={() => setHintsShown(hintsShown + 1)}>
             רמז ({hintsShown + 1}/{section.hints.length})
           </Button>
         )}
         {!solutionShown && (
-          <Button size="sm" icon={<Eye size={14} />} onClick={() => setSolutionShown(true)}>
+          <Button icon={<Eye size={16} />} onClick={() => setSolutionShown(true)}>
             הצג פתרון
           </Button>
         )}
       </div>
 
-      {solutionShown && (
-        <div className="hint-enter rounded-xl border border-border bg-surface-2/60 p-3.5">
-          <h3 className="mb-2 text-sm font-bold">פתרון מלא</h3>
-          <ol className="flex list-decimal flex-col gap-2 ps-5 text-sm leading-relaxed">
+      <Collapse open={solutionShown}>
+        <div className="prose mt-5 rounded-2xl border border-border bg-surface-2/60 p-5">
+          <h3 className="mb-4 text-base font-bold">פתרון מלא</h3>
+          <ol className="steps text-base leading-relaxed">
             {section.solutionSteps.map((step, stepIndex) => (
-              <li key={stepIndex}>
-                <Markdown inline>{step}</Markdown>
+              <li key={stepIndex} className="step">
+                <span className="step-num" aria-hidden="true">
+                  {stepIndex + 1}
+                </span>
+                <div className="step-body">
+                  <Markdown inline>{step}</Markdown>
+                </div>
               </li>
             ))}
           </ol>
-          <div className="mt-3 rounded-lg bg-green-soft px-3 py-2 text-sm text-green">
-            <b>תשובה סופית: </b>
-            <Markdown inline className="text-text">
-              {section.finalAnswer}
-            </Markdown>
+          <div className="answer-box mt-5 text-base">
+            <b className="text-green">תשובה סופית: </b>
+            <Markdown inline>{section.finalAnswer}</Markdown>
           </div>
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            <span className="text-sm font-semibold">איך הלך?</span>
-            <div className="seg" role="radiogroup" aria-label="הערכה עצמית">
-              {(['correct', 'partial', 'wrong'] as SectionResult[]).map((value) => (
-                <button key={value} type="button" role="radio" aria-checked={result === value} onClick={() => mark(value)} className="flex items-center gap-1">
-                  {value === 'correct' ? <CircleCheck size={14} className="text-green" /> : value === 'wrong' ? <CircleAlert size={14} className="text-red" /> : null}
+        </div>
+
+        <div className="mt-5">
+          <div className="mb-2 text-base font-bold">איך הלך בסעיף הזה?</div>
+          <div className="flex flex-col gap-2 sm:flex-row" role="group" aria-label="הערכה עצמית">
+            {(['correct', 'partial', 'wrong'] as SectionResult[]).map((value) => {
+              const Icon = resultIcon[value];
+              return (
+                <button key={value} type="button" className={`mark-btn mark-${resultTone[value]}`} aria-pressed={result === value} onClick={() => mark(value)}>
+                  <Icon size={20} aria-hidden="true" />
                   {resultLabels[value]}
                 </button>
-              ))}
-            </div>
-            {result === 'wrong' && !logging && (
-              <Button size="sm" variant="ghost" icon={<Flag size={14} />} onClick={() => setLogging(true)}>
+              );
+            })}
+          </div>
+          {result === 'wrong' && !logging && (
+            <div className="mt-3">
+              <Button size="sm" variant="ghost" icon={<Flag size={15} />} onClick={() => setLogging(true)}>
                 לרשום ביומן הטעויות
               </Button>
-            )}
-          </div>
-          {logging && (
-            <div className="mt-3 rounded-xl border border-border bg-surface p-3.5">
-              <h4 className="mb-2 text-sm font-bold">מה השתבש בסעיף {section.label}?</h4>
-              <p className="mb-3 text-xs text-muted">הטעות תיכנס לתור החזרות (1, 3, 7 ו-14 ימים) ותופיע בלוח הראשי.</p>
+            </div>
+          )}
+        </div>
+
+        <Collapse open={logging}>
+          <div className="mt-4 rounded-2xl border border-border p-5">
+            <h4 className="text-base font-bold">מה השתבש בסעיף {section.label}?</h4>
+            <p className="mb-4 text-sm text-muted">הטעות תיכנס לתור החזרות (אחרי יום, 3 ימים, שבוע ושבועיים) ותופיע בעמוד הראשי.</p>
+            {logging && (
               <MistakeForm
                 lockQuestionnaire
                 initial={{ questionnaire: problem.questionnaire, topicId: problem.topicId, problemId: problem.id, sectionId: section.id, type: 'understanding' }}
@@ -142,10 +174,10 @@ function SectionCard({ problem, section, index }: { problem: Problem; section: P
                 }}
                 onCancel={() => setLogging(false)}
               />
-            </div>
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        </Collapse>
+      </Collapse>
     </Card>
   );
 }
@@ -154,6 +186,8 @@ export function PracticePage() {
   const { problemId } = useParams();
   const { state, actions, notify } = useStore();
   const problem = problemById(problemId ?? '');
+  const sectionIds = useMemo(() => (problem ? problem.sections.map((section) => `section-${section.id}`) : []), [problem]);
+  const activeSection = useActiveSection(sectionIds);
   if (!problem) return <NotFound />;
   const questionnaire = questionnaireByCode(problem.questionnaire)!;
   const slot = slotOf(questionnaire, problem.slot);
@@ -163,6 +197,50 @@ export function PracticePage() {
   const position = siblings.findIndex((entry) => entry.id === problem.id);
   const previous = siblings[position - 1];
   const next = siblings[position + 1];
+  const record = state.practice[problem.id];
+
+  const verifiedNotice = verified ? (
+    <Notice tone="green" icon={<CircleCheck size={18} />}>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span>סימנת שבדקת את הפתרון של התרגיל הזה.</span>
+        <button type="button" className="text-sm font-semibold underline" onClick={() => actions.setProblemVerified(problem.id, false)}>
+          בטל סימון
+        </button>
+      </div>
+    </Notice>
+  ) : (
+    <Notice tone="orange" icon={<CircleAlert size={18} />}>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <span>
+          <b>⚠ לא נבדק.</b> התרגיל והפתרון נוצרו אוטומטית. פתרו בעצמכם, השוו בקפידה, ורק אם הכול נכון סמנו שבדקתם.
+        </span>
+        <Button
+          size="sm"
+          icon={<Check size={15} />}
+          onClick={() => {
+            actions.setProblemVerified(problem.id, true);
+            notify('התרגיל סומן כבדוק');
+          }}
+        >
+          בדקתי, הפתרון נכון
+        </Button>
+      </div>
+    </Notice>
+  );
+
+  const sectionNav = (
+    <nav className="flex flex-wrap gap-2" aria-label="מעבר בין סעיפים">
+      {problem.sections.map((section) => {
+        const result = record?.sectionResults[section.id];
+        const tone = result ? `chip-${resultTone[result]}` : '';
+        return (
+          <a key={section.id} href={`#section-${section.id}`} className={`chip ${tone}`} aria-current={activeSection === `section-${section.id}` ? 'true' : undefined} title={result ? resultLabels[result] : 'עוד לא דורג'}>
+            {section.label}
+          </a>
+        );
+      })}
+    </nav>
+  );
 
   return (
     <>
@@ -185,7 +263,7 @@ export function PracticePage() {
         title={problem.title}
         actions={<Stopwatch problemId={problem.id} />}
       >
-        <div className="mt-2 flex flex-wrap items-center gap-1.5">
+        <div className="mt-3 flex flex-wrap items-center gap-1.5">
           {slot && <PriorityBadge priority={slot.priority} />}
           <DifficultyBadge difficulty={problem.difficulty} />
           <Badge>~{problem.estimatedMinutes} דק׳</Badge>
@@ -193,63 +271,54 @@ export function PracticePage() {
         </div>
       </PageHeader>
 
-      <div className="mb-4">
-        {verified ? (
-          <Notice tone="green" icon={<CircleCheck size={16} />}>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span>סימנת שבדקת את הפתרון של התרגיל הזה.</span>
-              <button type="button" className="text-sm font-semibold underline" onClick={() => actions.setProblemVerified(problem.id, false)}>
-                בטל סימון
-              </button>
-            </div>
-          </Notice>
-        ) : (
-          <Notice tone="orange" icon={<CircleAlert size={16} />}>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span>
-                <b>⚠ לא נבדק.</b> התרגיל והפתרון נוצרו אוטומטית. פתרו בעצמכם, השוו בקפידה, ורק אם הכול נכון סמנו שבדקתם.
-              </span>
-              <Button
-                size="sm"
-                icon={<Check size={14} />}
-                onClick={() => {
-                  actions.setProblemVerified(problem.id, true);
-                  notify('התרגיל סומן כבדוק');
-                }}
-              >
-                בדקתי — הפתרון נכון
+      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-8">
+        <div className="flex min-w-0 flex-col gap-5">
+          {verifiedNotice}
+          <div className="lg:hidden">{sectionNav}</div>
+          {problem.figureSvg && <Figure svg={problem.figureSvg} caption="שרטוט (לא בקנה מידה)" />}
+          {problem.sections.map((section, index) => (
+            <SectionCard key={section.id} problem={problem} section={section} index={index} />
+          ))}
+          <nav className="mt-2 flex items-center justify-between gap-2" aria-label="מעבר בין תרגילים">
+            {previous ? (
+              <Button size="lg" to={`/practice/${previous.id}`} icon={<ArrowRight size={18} />}>
+                הקודם
               </Button>
+            ) : (
+              <span />
+            )}
+            {next ? (
+              <Button size="lg" to={`/practice/${next.id}`} variant="primary">
+                התרגיל הבא <ArrowLeft size={18} />
+              </Button>
+            ) : (
+              <Button size="lg" to={`/practice?code=${problem.questionnaire}`} variant="primary">
+                לכל התרגילים <ArrowLeft size={18} />
+              </Button>
+            )}
+          </nav>
+        </div>
+
+        <aside className="no-print hidden lg:block">
+          <div className="toc gap-4">
+            <div>
+              <div className="mb-2 px-1 text-sm font-semibold text-muted">סעיפים</div>
+              {sectionNav}
             </div>
-          </Notice>
-        )}
+            <div className="rounded-2xl bg-surface-2 p-4 text-sm text-muted">
+              {record ? (
+                <>
+                  תרגלת {record.attempts} {record.attempts === 1 ? 'פעם' : 'פעמים'}.
+                  <br />
+                  {Object.values(record.sectionResults).filter((value) => value === 'correct').length} סעיפים נכונים.
+                </>
+              ) : (
+                'עוד לא תרגלת את התרגיל הזה.'
+              )}
+            </div>
+          </div>
+        </aside>
       </div>
-
-      {problem.figureSvg && <Figure svg={problem.figureSvg} caption="שרטוט (לא בקנה מידה)" />}
-
-      <div className="flex flex-col gap-4">
-        {problem.sections.map((section, index) => (
-          <SectionCard key={section.id} problem={problem} section={section} index={index} />
-        ))}
-      </div>
-
-      <nav className="mt-6 flex items-center justify-between gap-2" aria-label="מעבר בין תרגילים">
-        {previous ? (
-          <Button to={`/practice/${previous.id}`} icon={<ArrowRight size={16} />}>
-            הקודם
-          </Button>
-        ) : (
-          <span />
-        )}
-        {next ? (
-          <Button to={`/practice/${next.id}`} variant="primary">
-            התרגיל הבא <ArrowLeft size={16} />
-          </Button>
-        ) : (
-          <Button to={`/practice?code=${problem.questionnaire}`} variant="primary">
-            לכל התרגילים <ArrowLeft size={16} />
-          </Button>
-        )}
-      </nav>
     </>
   );
 }
