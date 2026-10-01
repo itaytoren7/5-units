@@ -210,7 +210,7 @@ export function Tabs<T extends string>({ options, value, onChange, label, classN
 /** Height-animated container (grid-rows trick) for hints, solutions and drawers. */
 export function Collapse({ open, children, className = '' }: { open: boolean; children: ReactNode; className?: string }) {
   return (
-    <div className={`collapse ${className}`} data-open={open} aria-hidden={!open}>
+    <div className={`reveal ${className}`} data-open={open} aria-hidden={!open}>
       <div>{children}</div>
     </div>
   );
@@ -229,7 +229,7 @@ export function Accordion({ title, summary, children, defaultOpen = false, icon,
         </span>
         <ChevronDown size={18} className="accordion-chevron shrink-0 text-muted" aria-hidden="true" />
       </button>
-      <div id={id} className="collapse" data-open={open}>
+      <div id={id} className="reveal" data-open={open}>
         <div>
           <div className="accordion-body">{children}</div>
         </div>
