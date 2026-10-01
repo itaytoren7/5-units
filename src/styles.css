@@ -385,3 +385,23 @@ details > summary::-webkit-details-marker { display: none; }
   .katex-display { background: transparent; }
   a[href]::after { content: ''; }
 }
+
+/* ---------- Simulator ---------- */
+@keyframes pulse-soft {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--red) 35%, transparent); }
+  50% { box-shadow: 0 0 0 12px transparent; }
+}
+.exam-bar { position: sticky; top: 0.5rem; z-index: 20; }
+.exam-bar-danger { border-color: color-mix(in srgb, var(--red) 50%, var(--border)); animation: pulse-soft 1.8s ease-in-out infinite; }
+.exam-bar-warn { border-color: color-mix(in srgb, var(--orange) 50%, var(--border)); }
+.chip {
+  display: inline-grid; place-items: center; min-width: 44px; height: 44px; padding: 0 0.6rem; border-radius: 12px;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text); font-weight: 700; font-size: 15px;
+  transition: background var(--dur-fast), border-color var(--dur-fast), color var(--dur-fast), transform var(--dur-fast);
+}
+.chip:hover { border-color: var(--border-strong); }
+.chip[aria-current='true'] { box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 30%, transparent); }
+.chip-chosen { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+.chip-green { background: var(--green-soft); border-color: var(--green); color: var(--green); }
+.chip-orange { background: var(--orange-soft); border-color: var(--orange); color: var(--orange); }
+.chip-red { background: var(--red-soft); border-color: var(--red); color: var(--red); }
