@@ -1,6 +1,8 @@
 import { useRef, useState } from 'react';
-import { CalendarDays, Download, Info, Monitor, Moon, RotateCcw, Sun, Target, Upload } from 'lucide-react';
-import { Button, Card, Field, PageHeader, SectionTitle, Segmented } from '../components/ui';
+import { Link } from 'react-router-dom';
+import { CalendarDays, Download, Info, Monitor, Moon, RotateCcw, Sparkles, Sun, Target, Upload } from 'lucide-react';
+import { Button, Card, Field, PageHeader, SectionTitle, Segmented, Switch } from '../components/ui';
+import { useMotivation } from '../motivation/store';
 import { daysUntil, formatDate } from '../lib/dates';
 import { questionnaireList } from '../lib/questionnaires';
 import { STORAGE_KEY } from '../state/defaults';
@@ -9,11 +11,12 @@ import { useStore } from '../state/store';
 
 export function SettingsPage() {
   const { state, actions, notify } = useStore();
+  const motivation = useMotivation();
   const [confirmReset, setConfirmReset] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
 
   const download = () => {
-    const blob = new Blob([exportState(state)], { type: 'application/json' });
+    const blob = new Blob([exportState(state, { motivation: motivation.state })], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -28,7 +31,9 @@ export function SettingsPage() {
     const reader = new FileReader();
     reader.onload = () => {
       try {
-        actions.importState(parseImportedState(String(reader.result)));
+        const text = String(reader.result);
+        actions.importState(parseImportedState(text));
+        motivation.importFromBackup(text);
         notify('הגיבוי נטען בהצלחה');
       } catch (error) {
         notify(error instanceof Error ? error.message : 'קובץ הגיבוי אינו תקין');
@@ -77,6 +82,15 @@ export function SettingsPage() {
           </Card>
 
           <Card>
+            <SectionTitle icon={<Sparkles size={18} />} title="תנועה" description="אנימציות, מעברים וקונפטי" />
+            <label className="flex items-center justify-between gap-3">
+              <span className="text-base">הפחתת אנימציות</span>
+              <Switch checked={motivation.state.reducedMotion} onChange={motivation.setReducedMotion} label="הפחתת אנימציות" />
+            </label>
+            <p className="mt-2 text-sm text-muted">מכבה מעברים, מילוי מונפש וקונפטי. הגדרת ״הפחתת תנועה״ של המכשיר מכובדת תמיד.</p>
+          </Card>
+
+          <Card>
             <SectionTitle icon={<Sun size={18} />} title="ערכת נושא" />
             <Segmented
               label="ערכת נושא"
@@ -114,6 +128,7 @@ export function SettingsPage() {
                   variant="danger"
                   onClick={() => {
                     actions.resetState();
+                    motivation.reset();
                     setConfirmReset(false);
                     notify('כל הנתונים אופסו');
                   }}
@@ -140,6 +155,12 @@ export function SettingsPage() {
               הנתונים נשמרים ב-localStorage תחת המפתח <code className="rounded bg-surface-2 px-1" dir="ltr">{STORAGE_KEY}</code>.
             </li>
             <li>תרגילים שנוצרו אוטומטית מסומנים ״לא נבדק״ עד שתאשרו אותם בעצמכם. אל תסתמכו על פתרון שלא בדקתם.</li>
+            <li>
+              <Link to="/design-preview" className="font-semibold text-primary underline">
+                מערכת העיצוב
+              </Link>{' '}
+              (עמוד לצורכי פיתוח: כל הצבעים והרכיבים).
+            </li>
             <li>
               פתרונות רשמיים לבחינות עבר:{' '}
               <a href="https://students.education.gov.il/matriculation-exams/solutions" target="_blank" rel="noreferrer" className="font-semibold text-primary underline">

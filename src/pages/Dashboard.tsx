@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, BookOpen, CalendarDays, Check, ChevronLeft, PencilLine, Repeat, Target, Timer, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Award, BookOpen, CalendarDays, Check, ChevronLeft, PencilLine, Repeat, Target, Timer, TrendingUp } from 'lucide-react';
 import type { Questionnaire, Rating, Subtopic, Topic } from '@/data/syllabus/types';
 import { problems } from '@/data/problems';
 import { Markdown } from '../components/Markdown';
@@ -13,6 +13,8 @@ import { buildPlan } from '../lib/planner';
 import { progressOf, ratingOf, slotProgress, topicsOfSlot } from '../lib/progress';
 import { questionnaireList } from '../lib/questionnaires';
 import { dueReviews, nextExam, reviewTitle } from '../lib/selectors';
+import { BadgeGrid, StreakChip } from '../motivation/components';
+import { useMotivation } from '../motivation/store';
 import { useStore } from '../state/store';
 
 function greeting(now = new Date()): string {
@@ -124,6 +126,7 @@ function ExamCard({ questionnaire }: { questionnaire: Questionnaire }) {
 
 export function Dashboard() {
   const { state, actions } = useStore();
+  const { earnedCount, badgeStatuses } = useMotivation();
   const today = todayIso();
   const upcoming = nextExam(state, today);
   const upcomingQuestionnaire = upcoming ? questionnaireList.find((questionnaire) => questionnaire.code === upcoming.code) : undefined;
@@ -149,7 +152,10 @@ export function Dashboard() {
         <div className="pointer-events-none absolute -end-24 -top-24 h-72 w-72 rounded-full bg-primary-soft opacity-70 blur-2xl" aria-hidden="true" />
         <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-[60ch]">
-            <div className="text-sm font-semibold text-primary">{greeting()}</div>
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="text-sm font-semibold text-primary">{greeting()}</span>
+              <StreakChip />
+            </div>
             <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">
               {upcoming && upcomingQuestionnaire ? (
                 <>
@@ -317,6 +323,11 @@ export function Dashboard() {
           </Card>
         </div>
       </div>
+
+      <Card className="mt-5">
+        <SectionTitle icon={<Award size={18} />} title="ההישגים שלי" description={`${earnedCount} מתוך ${badgeStatuses.length} תגים. תג נפתח ברגע שמגיעים ליעד.`} />
+        <BadgeGrid />
+      </Card>
     </>
   );
 }

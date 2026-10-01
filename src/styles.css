@@ -442,3 +442,20 @@ details > summary::-webkit-details-marker { display: none; }
 .mark-red[aria-pressed='true'], .mark-red:hover { background: var(--red-soft); border-color: var(--red); color: var(--red); }
 .hint-box { display: flex; align-items: flex-start; gap: 0.7rem; border-radius: 14px; background: var(--yellow-soft); border: 1px solid color-mix(in srgb, var(--yellow) 25%, transparent); padding: 0.8rem 1rem; }
 .answer-box { border-radius: 14px; background: var(--green-soft); border: 1px solid color-mix(in srgb, var(--green) 25%, transparent); padding: 0.8rem 1rem; }
+
+/* ---------- Motivation layer ---------- */
+.badge-card { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; text-align: center; padding: 1rem 0.75rem; border-radius: 16px; border: 1px dashed var(--border); background: var(--surface-2); color: var(--muted); }
+.badge-card-earned { border: 1px solid color-mix(in srgb, var(--yellow-strong) 60%, var(--border)); background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
+.badge-card-icon { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
+.badge-card-earned .badge-card-icon { background: var(--yellow-soft); color: var(--yellow); border-color: transparent; }
+.badge-pop {
+  position: fixed; top: calc(72px + env(safe-area-inset-top)); inset-inline: 0; margin: 0 auto; width: min(92vw, 380px); z-index: 70;
+  display: flex; align-items: center; gap: 0.9rem; padding: 0.85rem 1rem; border-radius: 18px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-lg);
+  animation: badge-pop var(--dur-slow) var(--ease) both;
+}
+@media (min-width: 1024px) { .badge-pop { top: 24px; } }
+.badge-pop-icon { display: grid; place-items: center; width: 52px; height: 52px; flex: 0 0 auto; border-radius: 50%; background: var(--yellow-soft); color: var(--yellow); animation: badge-spin 0.9s var(--ease) both; }
+@keyframes badge-pop { 0% { opacity: 0; transform: translateY(-16px) scale(0.9); } 60% { opacity: 1; transform: translateY(4px) scale(1.02); } 100% { opacity: 1; transform: none; } }
+@keyframes badge-spin { 0% { transform: rotate(-20deg) scale(0.6); } 70% { transform: rotate(8deg) scale(1.1); } 100% { transform: none; } }
+@keyframes flame { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+.streak-flame { animation: flame 1.6s ease-in-out infinite; transform-origin: 50% 80%; }
