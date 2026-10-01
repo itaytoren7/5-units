@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ExternalLink, History, Plus, Trash2 } from 'lucide-react';
 import type { QuestionnaireCode } from '@/data/problems/types';
-import { Badge, Button, Card, EmptyState, Field, Notice, PageHeader, SectionTitle } from '../components/ui';
+import { Badge, Button, Card, Collapse, EmptyState, Field, Notice, PageHeader, SectionTitle, Stat } from '../components/ui';
 import { formatScore } from '../lib/format';
 import { questionnaireByCode, questionnaireList } from '../lib/questionnaires';
 import { useStore } from '../state/store';
@@ -31,23 +31,42 @@ export function PastExamsPage() {
   };
 
   const sorted = [...state.pastExams].sort((a, b) => b.year - a.year || a.questionNumber - b.questionNumber);
+  const averageFor = (code: string) => {
+    const entries = state.pastExams.filter((entry) => entry.questionnaire === code && entry.maxScore > 0);
+    if (!entries.length) return null;
+    return Math.round((entries.reduce((sum, entry) => sum + entry.score / entry.maxScore, 0) / entries.length) * 100);
+  };
 
   return (
     <>
-      <PageHeader title="בחינות עבר" description="מעקב אחרי שאלות מבגרויות אמיתיות שפתרתם. נשמרים רק קישורים — לא טקסט הבחינה." actions={<Button variant="primary" icon={<Plus size={16} />} onClick={() => setAdding(true)}>הוספה</Button>} />
-      <div className="mb-4">
-        <Notice tone="primary" icon={<ExternalLink size={16} />}>
+      <PageHeader
+        title="בחינות עבר"
+        description="מעקב אחרי שאלות מבגרויות אמיתיות שפתרתם. נשמרים רק קישורים, לא טקסט הבחינה."
+        actions={
+          <Button variant="primary" size="lg" icon={<Plus size={18} />} onClick={() => setAdding(true)}>
+            הוספה
+          </Button>
+        }
+      />
+      <div className="mb-5">
+        <Notice tone="primary" icon={<ExternalLink size={18} />}>
           בחינות ופתרונות רשמיים:{' '}
           <a href={OFFICIAL_SOLUTIONS} target="_blank" rel="noreferrer" className="font-bold underline">
-            אתר משרד החינוך — פתרונות לבחינות הבגרות
+            אתר משרד החינוך, פתרונות לבחינות הבגרות
           </a>
         </Notice>
       </div>
 
-      {adding && (
-        <Card className="mb-4">
+      <Collapse open={adding}>
+        <Card className="mb-5">
           <SectionTitle title="שאלה שפתרתי" />
-          <form className="grid gap-3 sm:grid-cols-2" onSubmit={(event) => { event.preventDefault(); save(); }}>
+          <form
+            className="grid gap-4 sm:grid-cols-2"
+            onSubmit={(event) => {
+              event.preventDefault();
+              save();
+            }}
+          >
             <Field label="שאלון">
               <select
                 value={questionnaire}
@@ -92,17 +111,33 @@ export function PastExamsPage() {
               <textarea rows={2} value={notes} onChange={(event) => setNotes(event.target.value)} />
             </Field>
             <div className="flex gap-2 sm:col-span-2">
-              <Button type="submit" variant="primary">שמירה</Button>
-              <Button variant="ghost" onClick={() => setAdding(false)}>ביטול</Button>
+              <Button type="submit" variant="primary" size="lg">
+                שמירה
+              </Button>
+              <Button variant="ghost" size="lg" onClick={() => setAdding(false)}>
+                ביטול
+              </Button>
             </div>
           </form>
         </Card>
+      </Collapse>
+
+      {state.pastExams.length > 0 && (
+        <div className="mb-5 grid grid-cols-3 gap-3">
+          <Stat label="שאלות שנרשמו" value={state.pastExams.length} />
+          {questionnaireList.map((entry) => {
+            const average = averageFor(entry.code);
+            return <Stat key={entry.code} label={`ממוצע ${entry.nickname}`} value={average === null ? '—' : `${average}%`} tone={average === null ? 'neutral' : average >= 85 ? 'green' : average >= 55 ? 'orange' : 'red'} />;
+          })}
+        </div>
       )}
 
       {sorted.length === 0 ? (
-        <EmptyState icon={<History size={20} />} title="עוד לא נרשמו בחינות עבר" description="אחרי שפותרים שאלה מבגרות אמיתית, רשמו כאן את הציון כדי לעקוב אחרי ההתקדמות." />
+        <Card>
+          <EmptyState icon={<History size={22} />} title="עוד לא נרשמו בחינות עבר" description="אחרי שפותרים שאלה מבגרות אמיתית, רשמו כאן את הציון כדי לעקוב אחרי ההתקדמות." />
+        </Card>
       ) : (
-        <ul className="flex flex-col gap-2">
+        <ul className="flex flex-col gap-3">
           {sorted.map((entry) => {
             const percent = entry.maxScore ? (entry.score / entry.maxScore) * 100 : 0;
             return (
@@ -110,17 +145,17 @@ export function PastExamsPage() {
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-1.5">
                     <Badge tone="primary">שאלון {questionnaireByCode(entry.questionnaire)?.nickname}</Badge>
-                    <b className="text-sm">
+                    <b className="text-base">
                       {entry.year} · {moedLabels[entry.moed]} · שאלה {entry.questionNumber}
                     </b>
                   </div>
                   {entry.notes && <p className="mt-1 text-sm text-muted">{entry.notes}</p>}
                 </div>
-                <Badge tone={percent >= 85 ? 'green' : percent >= 55 ? 'orange' : 'red'}>
+                <Badge tone={percent >= 85 ? 'green' : percent >= 55 ? 'orange' : 'red'} className="text-base">
                   {formatScore(entry.score)}/{formatScore(entry.maxScore)}
                 </Badge>
-                {entry.link && <Button size="sm" href={entry.link} icon={<ExternalLink size={14} />} aria-label="פתיחת קישור" />}
-                <Button size="sm" variant="ghost" icon={<Trash2 size={14} />} aria-label="מחיקה" onClick={() => actions.deletePastExam(entry.id)} />
+                {entry.link && <Button size="sm" href={entry.link} icon={<ExternalLink size={15} />} aria-label="פתיחת קישור" />}
+                <Button size="sm" variant="ghost" icon={<Trash2 size={15} />} aria-label="מחיקה" onClick={() => actions.deletePastExam(entry.id)} />
               </Card>
             );
           })}

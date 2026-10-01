@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { CalendarDays, Download, Info, Monitor, Moon, RotateCcw, Sun, Target, Upload } from 'lucide-react';
 import { Button, Card, Field, PageHeader, SectionTitle, Segmented } from '../components/ui';
-import { formatDate, daysUntil } from '../lib/dates';
+import { daysUntil, formatDate } from '../lib/dates';
 import { questionnaireList } from '../lib/questionnaires';
 import { STORAGE_KEY } from '../state/defaults';
 import { exportState, parseImportedState } from '../state/storage';
@@ -41,18 +41,18 @@ export function SettingsPage() {
   return (
     <>
       <PageHeader title="הגדרות וגיבוי" description="תאריכי הבחינה, מצב המיקוד, ערכת הנושא והנתונים שלך." />
-      <div className="flex flex-col gap-4">
+      <div className="grid gap-5 lg:grid-cols-2">
         <Card>
-          <SectionTitle icon={<CalendarDays size={16} />} title="תאריכי בחינה" description="מפעילים ספירה לאחור בלוח הראשי ואת התוכנית השבועית" />
-          <div className="grid gap-3 sm:grid-cols-2">
+          <SectionTitle icon={<CalendarDays size={18} />} title="תאריכי בחינה" description="מפעילים ספירה לאחור בעמוד הראשי ואת התוכנית השבועית" />
+          <div className="flex flex-col gap-4">
             {questionnaireList.map((questionnaire) => {
               const date = state.examDates[questionnaire.code] ?? '';
               const days = date ? daysUntil(date) : null;
               return (
                 <Field key={questionnaire.code} label={`שאלון ${questionnaire.nickname} (${questionnaire.code})`} hint={days === null ? 'לא הוגדר תאריך' : days >= 0 ? `${formatDate(date)} · עוד ${days} ימים` : 'התאריך עבר'}>
                   <div className="flex gap-2">
-                    <input type="date" value={date} onChange={(event) => actions.setExamDate(questionnaire.code, event.target.value)} className="flex-1" />
-                    {date && <Button variant="ghost" aria-label="נקה תאריך" onClick={() => actions.setExamDate(questionnaire.code, '')} icon={<RotateCcw size={16} />} />}
+                    <input type="date" value={date} onChange={(event) => actions.setExamDate(questionnaire.code, event.target.value)} className="min-w-0 flex-1" />
+                    {date && <Button variant="ghost" aria-label="נקה תאריך" onClick={() => actions.setExamDate(questionnaire.code, '')} icon={<RotateCcw size={18} />} />}
                   </div>
                 </Field>
               );
@@ -60,35 +60,40 @@ export function SettingsPage() {
           </div>
         </Card>
 
-        <Card>
-          <SectionTitle icon={<Target size={16} />} title="תצוגת מיקוד" description="מה להציג במפת הסילבוס ובעמודי הנושאים" />
-          <Segmented
-            label="מצב מיקוד"
-            value={state.focusMode}
-            onChange={actions.setFocusMode}
-            options={[
-              { value: 'focus-2026', label: 'מיקוד 2026 — נושאים שירדו מקופלים' },
-              { value: 'full', label: 'סילבוס מלא — הכול מוצג' },
-            ]}
-          />
-        </Card>
+        <div className="flex flex-col gap-5">
+          <Card>
+            <SectionTitle icon={<Target size={18} />} title="תצוגת מיקוד" description="מה להציג במפת הסילבוס ובעמודי הנושאים" />
+            <Segmented
+              label="מצב מיקוד"
+              value={state.focusMode}
+              onChange={actions.setFocusMode}
+              fill
+              options={[
+                { value: 'focus-2026', label: 'מיקוד 2026' },
+                { value: 'full', label: 'סילבוס מלא' },
+              ]}
+            />
+            <p className="mt-2 text-sm text-muted">{state.focusMode === 'focus-2026' ? 'נושאים שירדו מהבחינה מקופלים.' : 'כל הנושאים מוצגים, כולל מה שירד.'}</p>
+          </Card>
 
-        <Card>
-          <SectionTitle icon={<Sun size={16} />} title="ערכת נושא" />
-          <Segmented
-            label="ערכת נושא"
-            value={state.theme}
-            onChange={actions.setTheme}
-            options={[
-              { value: 'light', label: <span className="inline-flex items-center gap-1"><Sun size={14} /> בהיר</span> },
-              { value: 'dark', label: <span className="inline-flex items-center gap-1"><Moon size={14} /> כהה</span> },
-              { value: 'system', label: <span className="inline-flex items-center gap-1"><Monitor size={14} /> לפי המערכת</span> },
-            ]}
-          />
-        </Card>
+          <Card>
+            <SectionTitle icon={<Sun size={18} />} title="ערכת נושא" />
+            <Segmented
+              label="ערכת נושא"
+              value={state.theme}
+              onChange={actions.setTheme}
+              fill
+              options={[
+                { value: 'light', label: <span className="inline-flex items-center gap-1.5"><Sun size={16} /> בהיר</span> },
+                { value: 'dark', label: <span className="inline-flex items-center gap-1.5"><Moon size={16} /> כהה</span> },
+                { value: 'system', label: <span className="inline-flex items-center gap-1.5"><Monitor size={16} /> לפי המערכת</span> },
+              ]}
+            />
+          </Card>
+        </div>
 
-        <Card>
-          <SectionTitle icon={<Download size={16} />} title="גיבוי הנתונים" description="ההתקדמות, היומן, הסימולציות והתוכנית נשמרים במכשיר הזה בלבד. ייצאו גיבוי מדי פעם, במיוחד לפני החלפת דפדפן או מכשיר." />
+        <Card className="lg:col-span-2">
+          <SectionTitle icon={<Download size={18} />} title="גיבוי הנתונים" description="ההתקדמות, היומן, הסימולציות והתוכנית נשמרים במכשיר הזה בלבד. ייצאו גיבוי מדי פעם, במיוחד לפני החלפת דפדפן או מכשיר." />
           <div className="flex flex-wrap gap-2">
             <Button variant="primary" icon={<Download size={16} />} onClick={download}>
               ייצוא גיבוי (JSON)
@@ -98,10 +103,10 @@ export function SettingsPage() {
             </Button>
             <input ref={fileInput} type="file" accept="application/json,.json" hidden onChange={(event) => importFile(event.target.files?.[0])} />
           </div>
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-dashed border-border p-4">
             <div>
-              <b className="block text-sm">איפוס כל הנתונים</b>
-              <span className="text-xs text-muted">מוחק תאריכים, דירוגים, תרגולים, יומן טעויות, סימולציות ותוכנית מהמכשיר הזה.</span>
+              <b className="block text-base">איפוס כל הנתונים</b>
+              <span className="text-sm text-muted">מוחק תאריכים, דירוגים, תרגולים, יומן טעויות, סימולציות ותוכנית מהמכשיר הזה.</span>
             </div>
             {confirmReset ? (
               <div className="flex gap-2">
@@ -127,10 +132,10 @@ export function SettingsPage() {
           </div>
         </Card>
 
-        <Card>
-          <SectionTitle icon={<Info size={16} />} title="על האפליקציה" />
-          <ul className="flex flex-col gap-1 text-sm text-muted">
-            <li>מרכז למידה אישי לבגרות במתמטיקה 5 יח״ל — שאלונים 35581 ו-35582, לפי המיקוד לקיץ 2026.</li>
+        <Card className="lg:col-span-2">
+          <SectionTitle icon={<Info size={18} />} title="על האפליקציה" />
+          <ul className="flex flex-col gap-1.5 text-base text-muted">
+            <li>מרכז למידה אישי לבגרות במתמטיקה 5 יח״ל: שאלונים 35581 ו-35582, לפי המיקוד לקיץ 2026.</li>
             <li>
               הנתונים נשמרים ב-localStorage תחת המפתח <code className="rounded bg-surface-2 px-1" dir="ltr">{STORAGE_KEY}</code>.
             </li>
