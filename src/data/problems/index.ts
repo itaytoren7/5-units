@@ -12,4 +12,4 @@ export function problemById(id: string): Problem | undefined {
   return problems.find((problem) => problem.id === id);
 }
 
-export type { Difficulty, Problem, ProblemSection, ProblemSource, QuestionnaireCode } from './types';
+export type { Difficulty, Problem, ProblemSection, ProblemSource, QuestionnaireCode, SourceAttribution } from './types';

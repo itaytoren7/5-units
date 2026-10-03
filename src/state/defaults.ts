@@ -18,5 +18,7 @@ export function defaultState(): SavedState {
     planner: { hoursPerWeek: 10, studyDays: [0, 1, 2, 3, 4], sessionMinutes: 60 },
     planOverrides: {},
     activeExam: null,
+    learnedLessons: {},
+    officialExams: {},
   };
 }

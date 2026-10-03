@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Check, CircleAlert, CircleCheck, CircleX, Eye, Flag, Lightbulb, MinusCircle, Pause, Play, RotateCcw } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, CircleAlert, CircleCheck, CircleX, Eye, Flag, History, Lightbulb, MinusCircle, Pause, Play, RotateCcw } from 'lucide-react';
 import type { Problem, ProblemSection } from '@/data/problems/types';
 import { problemById, problemsFor } from '@/data/problems';
+import { AnswerCheck } from '../components/AnswerCheck';
 import { Figure } from '../components/Figure';
 import { Markdown } from '../components/Markdown';
 import { MistakeForm } from '../components/MistakeForm';
@@ -10,6 +11,8 @@ import { DifficultyBadge } from '../components/ProblemCard';
 import { PriorityBadge } from '../components/StatusBadge';
 import { Badge, Button, Card, Collapse, Notice, PageHeader } from '../components/ui';
 import { useActiveSection } from '../components/useActiveSection';
+import { useVisibleSince } from '../components/useVisibleSince';
+import { useMotivation } from '../motivation/store';
 import { formatClock } from '../lib/dates';
 import { questionnaireByCode, slotOf, topicOf } from '../lib/questionnaires';
 import { useStore } from '../state/store';
@@ -54,6 +57,8 @@ function Stopwatch({ problemId }: { problemId: string }) {
 
 function SectionCard({ problem, section, index }: { problem: Problem; section: ProblemSection; index: number }) {
   const { state, actions, notify } = useStore();
+  const { reportSolutionOpened } = useMotivation();
+  const { ref, secondsVisible } = useVisibleSince<HTMLElement>(section.id);
   const [hintsShown, setHintsShown] = useState(0);
   const [solutionShown, setSolutionShown] = useState(false);
   const [logging, setLogging] = useState(false);
@@ -68,11 +73,11 @@ function SectionCard({ problem, section, index }: { problem: Problem; section: P
   const mark = (next: SectionResult) => {
     actions.recordSectionResult(problem.id, section.id, next, problem.questionnaire);
     if (next === 'wrong') setLogging(true);
-    else notify(next === 'correct' ? 'יפה! נשמר.' : 'נשמר. שווה לחזור על הסעיף הזה.');
+    else notify(next === 'correct' ? 'נשמר.' : 'נשמר. "חלקית" בבגרות זה נקודות שהלכו. תחזרו לסעיף הזה.');
   };
 
   return (
-    <Card as="article" className="scroll-mt-24">
+    <Card as="article" className="scroll-mt-24" ref={ref}>
       <div id={`section-${section.id}`} className="mb-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <span className="section-label" aria-hidden="true">
@@ -88,6 +93,16 @@ function SectionCard({ problem, section, index }: { problem: Problem; section: P
       <div className="prose">
         <Markdown className="text-lg leading-relaxed">{section.statement}</Markdown>
       </div>
+
+      {section.numericAnswer !== undefined && (
+        <AnswerCheck
+          answers={[{ label: 'התשובה שלי', value: section.numericAnswer }]}
+          resetKey={section.id}
+          onChecked={(allCorrect) => {
+            if (allCorrect && result !== 'correct') actions.recordSectionResult(problem.id, section.id, 'correct', problem.questionnaire);
+          }}
+        />
+      )}
 
       <div className="mt-4 flex flex-col gap-2">
         {section.hints.map((hint, hintIndex) => (
@@ -110,7 +125,13 @@ function SectionCard({ problem, section, index }: { problem: Problem; section: P
           </Button>
         )}
         {!solutionShown && (
-          <Button icon={<Eye size={16} />} onClick={() => setSolutionShown(true)}>
+          <Button
+            icon={<Eye size={16} />}
+            onClick={() => {
+              setSolutionShown(true);
+              reportSolutionOpened(secondsVisible(), hintsShown);
+            }}
+          >
             הצג פתרון
           </Button>
         )}
@@ -138,7 +159,7 @@ function SectionCard({ problem, section, index }: { problem: Problem; section: P
         </div>
 
         <div className="mt-5">
-          <div className="mb-2 text-base font-bold">איך הלך בסעיף הזה?</div>
+          <div className="mb-2 text-base font-bold">איך הלך בסעיף הזה? תהיו כנים.</div>
           <div className="flex flex-col gap-2 sm:flex-row" role="group" aria-label="הערכה עצמית">
             {(['correct', 'partial', 'wrong'] as SectionResult[]).map((value) => {
               const Icon = resultIcon[value];
@@ -198,6 +219,22 @@ export function PracticePage() {
   const previous = siblings[position - 1];
   const next = siblings[position + 1];
   const record = state.practice[problem.id];
+
+  const attribution = problem.attribution ? (
+    <Notice tone="primary" icon={<History size={18} />}>
+      <span>
+        שאלה מבחינת בגרות עבר: <b>{problem.attribution.section}</b>. הטקסט נלקח מ
+        <a href={problem.attribution.url} target="_blank" rel="noreferrer" className="font-semibold underline">
+          {problem.attribution.work}
+        </a>{' '}
+        (רישיון{' '}
+        <a href={problem.attribution.licenseUrl} target="_blank" rel="noreferrer" className="underline">
+          {problem.attribution.license}
+        </a>
+        ). הרמזים והפתרון נכתבו לאתר.
+      </span>
+    </Notice>
+  ) : null;
 
   const verifiedNotice = verified ? (
     <Notice tone="green" icon={<CircleCheck size={18} />}>
@@ -273,6 +310,7 @@ export function PracticePage() {
 
       <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-8">
         <div className="flex min-w-0 flex-col gap-5">
+          {attribution}
           {verifiedNotice}
           <div className="lg:hidden">{sectionNav}</div>
           {problem.figureSvg && <Figure svg={problem.figureSvg} caption="שרטוט (לא בקנה מידה)" />}

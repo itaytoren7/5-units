@@ -22,6 +22,21 @@ describe('state storage', () => {
     expect(restored).toEqual(state);
   });
 
+  it('keeps learned lessons and official-exam progress, and imports old backups without them', () => {
+    const state = defaultState();
+    state.learnedLessons['trig-sine-law'] = true;
+    state.officialExams['35581-2025-6'] = { status: 'done', score: 82, date: '2026-09-30' };
+    expect(parseImportedState(exportState(state))).toEqual(state);
+    const old = JSON.parse(exportState(defaultState()));
+    delete old.learnedLessons;
+    delete old.officialExams;
+    expect(parseImportedState(JSON.stringify(old))).toEqual(defaultState());
+    expect(sanitizeState({ version: 1, learnedLessons: { a: true, b: 'yes' }, officialExams: { x: { status: 'done', score: 140 }, y: 3 } })).toMatchObject({
+      learnedLessons: { a: true },
+      officialExams: { x: { status: 'done', score: 100 } },
+    });
+  });
+
   it('rejects files without a version marker', () => {
     expect(() => parseImportedState('{"ratings":{}}')).toThrow();
     expect(() => parseImportedState('not json')).toThrow();

@@ -14,6 +14,11 @@ export interface PlannerInput {
   sessionMinutes: number;
   /** YYYY-MM-DD */
   today: string;
+  /**
+   * Subtopics the student already learned in class. When given (non-empty), their sessions come first
+   * and everything not learned yet is scheduled after them, marked as such.
+   */
+  learnedSubtopicIds?: ReadonlySet<string>;
 }
 
 export type SessionKind = 'study' | 'simulation' | 'review';
@@ -86,45 +91,58 @@ function orderedSlots(questionnaire: Questionnaire) {
   return [...yellow, ...blue];
 }
 
-/** Study sessions for one questionnaire: yellow slots first, chunked to the session length. */
+/** Study sessions for one questionnaire: yellow slots first, chunked to the session length (learned-in-class first when known). */
 function studySessions(questionnaire: Questionnaire, input: PlannerInput, deadlineWeek?: number): PendingSession[] {
   const seen = new Set<string>();
   const sessions: PendingSession[] = [];
-  for (const slot of orderedSlots(questionnaire)) {
+  const learned = input.learnedSubtopicIds && input.learnedSubtopicIds.size > 0 ? input.learnedSubtopicIds : null;
+  const bySlot = orderedSlots(questionnaire).map((slot) => {
     const subtopics = slotSubtopics(questionnaire, slot).filter((subtopic) => subtopic.status === 'in' && !seen.has(subtopic.id));
     for (const subtopic of subtopics) seen.add(subtopic.id);
-    let chunk: Subtopic[] = [];
-    let chunkMinutes = 0;
-    let chunkIndex = 0;
-    const flush = () => {
-      if (chunk.length === 0) return;
-      chunkIndex += 1;
-      sessions.push({
-        id: `${questionnaire.code}-s${slot.number}-${chunkIndex}`,
-        questionnaire: questionnaire.code,
-        kind: 'study',
-        slot: slot.number,
-        priority: slot.priority,
-        title: `שאלה ${slot.number} · ${slot.title}`,
-        subtopicIds: chunk.map((subtopic) => subtopic.id),
-        minutes: chunkMinutes,
-        deadlineWeek,
-      });
-      chunk = [];
-      chunkMinutes = 0;
-    };
-    for (const subtopic of subtopics) {
-      const minutes = subtopicMinutes(subtopic, input.ratings);
-      if (chunk.length > 0 && chunkMinutes + minutes > input.sessionMinutes) flush();
-      chunk.push(subtopic);
-      chunkMinutes += minutes;
-    }
-    flush();
-    if (chunkIndex > 1) {
-      const slotSessions = sessions.slice(-chunkIndex);
-      slotSessions.forEach((session, index) => {
-        session.title = `${session.title} · חלק ${index + 1}/${chunkIndex}`;
-      });
+    return { slot, subtopics };
+  });
+  const passes: Array<{ suffix: string; note: string; pick: (subtopic: Subtopic) => boolean }> = learned
+    ? [
+        { suffix: '', note: '', pick: (subtopic) => learned.has(subtopic.id) },
+        { suffix: 'u', note: ' · עוד לא נלמד בכיתה', pick: (subtopic) => !learned.has(subtopic.id) },
+      ]
+    : [{ suffix: '', note: '', pick: () => true }];
+  for (const pass of passes) {
+    for (const { slot, subtopics: all } of bySlot) {
+      const subtopics = all.filter(pass.pick);
+      let chunk: Subtopic[] = [];
+      let chunkMinutes = 0;
+      let chunkIndex = 0;
+      const flush = () => {
+        if (chunk.length === 0) return;
+        chunkIndex += 1;
+        sessions.push({
+          id: `${questionnaire.code}-s${slot.number}-${pass.suffix}${chunkIndex}`,
+          questionnaire: questionnaire.code,
+          kind: 'study',
+          slot: slot.number,
+          priority: slot.priority,
+          title: `שאלה ${slot.number} · ${slot.title}${pass.note}`,
+          subtopicIds: chunk.map((subtopic) => subtopic.id),
+          minutes: chunkMinutes,
+          deadlineWeek,
+        });
+        chunk = [];
+        chunkMinutes = 0;
+      };
+      for (const subtopic of subtopics) {
+        const minutes = subtopicMinutes(subtopic, input.ratings);
+        if (chunk.length > 0 && chunkMinutes + minutes > input.sessionMinutes) flush();
+        chunk.push(subtopic);
+        chunkMinutes += minutes;
+      }
+      flush();
+      if (chunkIndex > 1) {
+        const slotSessions = sessions.slice(-chunkIndex);
+        slotSessions.forEach((session, index) => {
+          session.title = `${session.title} · חלק ${index + 1}/${chunkIndex}`;
+        });
+      }
     }
   }
   return sessions;

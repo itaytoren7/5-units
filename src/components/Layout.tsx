@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { AlertTriangle, BookOpen, CalendarDays, History, Home, Monitor, Moon, MoreHorizontal, PencilLine, Settings, Sigma, Sun, Timer, X } from 'lucide-react';
+import { AlertTriangle, BookOpen, CalendarDays, GraduationCap, History, Home, Monitor, Moon, MoreHorizontal, PencilLine, Settings, Sigma, Sun, Timer, X } from 'lucide-react';
 import { useStore } from '../state/store';
 import type { Theme } from '../state/types';
 
@@ -15,6 +15,7 @@ export interface NavEntry {
 export const primaryNav: NavEntry[] = [
   { to: '/', label: 'ראשי', icon: Home, end: true },
   { to: '/syllabus', label: 'סילבוס', description: 'מפת הנושאים, המיקוד ורמת השליטה שלך', icon: BookOpen },
+  { to: '/learn', label: 'שיעורים', description: 'כל תתי-הנושאים של הספר, עם תרגילים ממוקדים', icon: GraduationCap },
   { to: '/practice', label: 'תרגול', description: 'מאגר תרגילים עם רמזים ופתרונות מלאים', icon: PencilLine },
   { to: '/simulator', label: 'סימולטור', description: 'בחינת דמה עם שעון אמיתי וציון', icon: Timer },
 ];
@@ -80,10 +81,10 @@ function Brand({ onClick }: { onClick?: () => void }) {
 }
 
 function ScrollToTop() {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
   useEffect(() => {
-    window.scrollTo({ top: 0 });
-  }, [pathname]);
+    if (!hash) window.scrollTo({ top: 0 });
+  }, [pathname, hash]);
   return null;
 }
 

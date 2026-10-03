@@ -1,11 +1,12 @@
 import { lazy, Suspense, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { AlertTriangle, BookOpen, ClipboardCheck, FunctionSquare, Lightbulb, PencilLine, Sigma, Target } from 'lucide-react';
+import { AlertTriangle, BookOpen, ChevronLeft, ClipboardCheck, FunctionSquare, GraduationCap, Lightbulb, PencilLine, Sigma, Target } from 'lucide-react';
+import { chapters as lessonChapters, isInScope, lessonCatalog, lessonPath } from '@/data/lessons/catalog';
 import { problemsFor } from '@/data/problems';
 import { summaryFor } from '@/data/summaries';
 import { Latex, Markdown } from '../components/Markdown';
 import { ProblemCard } from '../components/ProblemCard';
-import { PriorityBadge } from '../components/StatusBadge';
+import { LessonStatusBadge, PriorityBadge } from '../components/StatusBadge';
 import { SyllabusTopic } from '../components/SyllabusTopic';
 import { Accordion, Badge, Button, Card, EmptyState, Notice, PageHeader, ProgressRing, SectionTitle } from '../components/ui';
 import { useActiveSection } from '../components/useActiveSection';
@@ -45,17 +46,19 @@ export function TopicPage() {
   const summary = questionnaire && topic && isQuestionnaireCode(code) ? summaryFor(code, topic.id) : undefined;
   const practice = questionnaire && topic && isQuestionnaireCode(code) ? problemsFor(code).filter((problem) => problem.topicId === topic.id) : [];
   const tools = summary?.tools ?? [];
+  const topicChapters = topic && isQuestionnaireCode(code) ? lessonChapters.filter((chapter) => chapter.questionnaire === code && chapter.topicIds.includes(topic.id)) : [];
 
   const anchors = useMemo<Anchor[]>(() => {
     const list: Anchor[] = [];
     if (summary) {
       list.push({ id: 'summary', label: 'תקציר' }, { id: 'key-points', label: 'הגדרות ומשפטים' }, { id: 'formulas', label: 'נוסחאות' }, { id: 'patterns', label: 'דפוסי בגרות' }, { id: 'mistakes', label: 'טעויות נפוצות' }, { id: 'examples', label: 'דוגמאות פתורות' });
     }
+    if (topicChapters.length > 0) list.push({ id: 'lessons', label: 'שיעורים' });
     if (tools.length > 0) list.push({ id: 'tools', label: 'כלים' });
     list.push({ id: 'mastery', label: 'רמת שליטה' });
     if (practice.length > 0) list.push({ id: 'practice', label: 'תרגול' });
     return list;
-  }, [summary, tools.length, practice.length]);
+  }, [summary, tools.length, practice.length, topicChapters.length]);
   const anchorIds = useMemo(() => anchors.map((anchor) => anchor.id), [anchors]);
   const active = useActiveSection(anchorIds);
 
@@ -220,6 +223,36 @@ export function TopicPage() {
                 <EmptyState icon={<BookOpen size={22} />} title="התקציר לנושא הזה עדיין בהכנה" description="בינתיים אפשר לסמן רמת שליטה בתתי-הנושאים ולתרגל מהמאגר." />
               </Card>
             )
+          )}
+
+          {topicChapters.length > 0 && (
+            <Card>
+              <div id="lessons" className="scroll-mt-24" />
+              <SectionTitle icon={<GraduationCap size={18} />} title="שיעורים בנושא" description="תתי-הנושאים של ספר הלימוד, לפי הסדר, עם תרגילים ממוקדים" />
+              <div className="flex flex-col gap-5">
+                {topicChapters.map((chapter) => (
+                  <div key={chapter.id}>
+                    <Link to={`/learn/${chapter.id}`} className="mb-2 inline-flex items-center gap-1 text-base font-bold hover:text-primary">
+                      {chapter.title} <ChevronLeft size={16} aria-hidden="true" />
+                    </Link>
+                    <ol className="grid gap-1.5 sm:grid-cols-2">
+                      {lessonCatalog
+                        .filter((lesson) => lesson.chapterId === chapter.id)
+                        .map((lesson, index) => (
+                          <li key={lesson.id}>
+                            <Link to={lessonPath(lesson)} className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition hover:bg-surface-2 ${isInScope(lesson.status) ? '' : 'text-muted'}`}>
+                              <span className="w-6 shrink-0 text-center font-semibold tabular-nums text-muted">{index + 1}</span>
+                              <span className="min-w-0 flex-1">{lesson.title}</span>
+                              {state.learnedLessons[lesson.id] && <span className="text-xs font-semibold text-primary">למדתי</span>}
+                              {lesson.status !== 'in' && <LessonStatusBadge status={lesson.status} size="sm" />}
+                            </Link>
+                          </li>
+                        ))}
+                    </ol>
+                  </div>
+                ))}
+              </div>
+            </Card>
           )}
 
           {tools.length > 0 && (

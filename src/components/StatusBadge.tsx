@@ -26,3 +26,15 @@ export function StatusDot({ status }: { status: Status }) {
   const color = status === 'in' ? 'var(--green)' : status === 'out-2026' ? 'var(--orange)' : 'var(--red)';
   return <span className="mt-1.5 inline-block h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: color }} aria-hidden="true" />;
 }
+
+const lessonStatusLabels = { in: 'בבגרות', partial: 'חלקית בבגרות', 'out-original': 'לא בבגרות', 'out-2026': 'הורדה 2026' } as const;
+
+/** Status of a study-book lesson in the 2026 מיקוד (always with a label, never color alone). */
+export function LessonStatusBadge({ status, size = 'md' }: { status: keyof typeof lessonStatusLabels; size?: 'sm' | 'md' }) {
+  const tone = status === 'in' ? 'green' : status === 'partial' ? 'blue' : status === 'out-2026' ? 'orange' : 'red';
+  return (
+    <Badge tone={tone} size={size}>
+      {lessonStatusLabels[status]}
+    </Badge>
+  );
+}

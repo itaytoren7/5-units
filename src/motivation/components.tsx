@@ -1,4 +1,6 @@
-import { Award, Flag, Flame, Layers, Lock, Pencil, Star, Target, Timer, Trophy, X, Zap } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Award, Eye, Flag, Flame, Layers, Lock, Megaphone, Pencil, Repeat, Star, Target, Timer, TrendingDown, Trophy, X, Zap } from 'lucide-react';
+import type { CoachKind, CoachMessage } from './coach';
 import { formatShortDate } from '../lib/dates';
 import type { BadgeIcon } from './badges';
 import { useMotivation } from './store';
@@ -62,4 +64,59 @@ export function BadgePop() {
       </button>
     </div>
   );
+}
+
+const coachIcons: Record<CoachKind, typeof Star> = {
+  'streak-broken': Flame,
+  'streak-at-risk': Flame,
+  'overdue-reviews': Repeat,
+  'low-score': TrendingDown,
+  'score-drop': TrendingDown,
+  'fast-peek': Eye,
+  'repeat-wrong': Target,
+  'missed-sessions': Megaphone,
+};
+
+/** The tough coach's message card. Stays until the student acts on it or closes it. */
+export function CoachCard({ message, onClose, variant = 'pop' }: { message: CoachMessage; onClose: () => void; variant?: 'pop' | 'banner' }) {
+  const navigate = useNavigate();
+  const Icon = coachIcons[message.kind];
+  return (
+    <div className={variant === 'pop' ? 'coach-pop' : 'coach-banner'} role={variant === 'pop' ? 'alert' : undefined}>
+      <span className="coach-icon" aria-hidden="true">
+        <Icon size={22} />
+      </span>
+      <div className="min-w-0 flex-1">
+        <span className="block text-xs font-bold uppercase tracking-wide text-red">המאמן</span>
+        <span className="block text-base font-bold leading-snug">{message.title}</span>
+        <p className="mt-1 text-sm leading-relaxed text-muted">{message.body}</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {message.action && (
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              onClick={() => {
+                onClose();
+                navigate(message.action!.to);
+              }}
+            >
+              {message.action.label}
+            </button>
+          )}
+          <button type="button" className="btn btn-ghost btn-sm" onClick={onClose}>
+            הבנתי
+          </button>
+        </div>
+      </div>
+      <button type="button" className="btn btn-ghost btn-sm btn-icon" aria-label="סגירה" onClick={onClose}>
+        <X size={16} />
+      </button>
+    </div>
+  );
+}
+
+export function CoachPop() {
+  const { coachMessage, dismissCoach } = useMotivation();
+  if (!coachMessage) return null;
+  return <CoachCard key={coachMessage.id} message={coachMessage} onClose={dismissCoach} />;
 }

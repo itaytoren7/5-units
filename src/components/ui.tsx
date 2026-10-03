@@ -1,4 +1,4 @@
-import { useEffect, useId, useState, type ButtonHTMLAttributes, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useId, useState, type ButtonHTMLAttributes, type CSSProperties, type ReactNode, type Ref } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 
@@ -43,8 +43,10 @@ export function Card({
   style,
   interactive = false,
   padding = 'md',
+  ref,
 }: {
   children: ReactNode;
+  ref?: Ref<HTMLElement>;
   className?: string;
   as?: 'section' | 'article' | 'div' | 'li';
   style?: CSSProperties;
@@ -54,7 +56,7 @@ export function Card({
 }) {
   const pad = padding === 'none' ? '' : padding === 'sm' ? 'p-4' : padding === 'lg' ? 'p-6 sm:p-8' : 'p-5 sm:p-6';
   return (
-    <Tag className={`card ${interactive ? 'card-hover' : ''} ${pad} ${className}`.trim()} style={style}>
+    <Tag ref={ref as Ref<never>} className={`card ${interactive ? 'card-hover' : ''} ${pad} ${className}`.trim()} style={style}>
       {children}
     </Tag>
   );

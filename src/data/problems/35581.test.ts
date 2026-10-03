@@ -80,7 +80,7 @@ function tangent(f: RealFn, x0: number): [number, number] {
 
 describe('35581 problem bank structure', () => {
   it.each([1, 2, 3, 4, 5, 6, 7, 8])('slot %i has at least 3 bagrut-style problems with 3–4 sections', (slot) => {
-    const slotProblems = problems35581.filter((problem) => problem.slot === slot);
+    const slotProblems = problems35581.filter((problem) => problem.slot === slot && problem.source !== 'open-source');
     expect(slotProblems.length).toBeGreaterThanOrEqual(3);
     for (const problem of slotProblems) {
       expect(problem.sections.length).toBeGreaterThanOrEqual(3);
@@ -100,8 +100,19 @@ describe('35581 problem bank structure', () => {
     expect(Math.max(...difficulties)).toBe(3);
   });
 
+  it('open-source problems carry a full attribution and a bagrut-like shape', () => {
+    for (const problem of problems35581.filter((item) => item.source === 'open-source')) {
+      expect(problem.attribution, `${problem.id}: attribution`).toBeDefined();
+      expect(problem.attribution?.url).toMatch(/^https:\/\//);
+      expect(problem.attribution?.licenseUrl).toMatch(/^https:\/\//);
+      expect(problem.sections.length).toBeGreaterThanOrEqual(2);
+      expect(problem.sections.length).toBeLessThanOrEqual(6);
+      expect(problem.sections.map((section) => section.label)).toEqual(['א', 'ב', 'ג', 'ד', 'ה', 'ו'].slice(0, problem.sections.length));
+    }
+  });
+
   it('slot 4 and slot 5 problems have a viewBox-based figure', () => {
-    for (const problem of problems35581.filter((item) => item.slot === 4 || item.slot === 5)) {
+    for (const problem of problems35581.filter((item) => (item.slot === 4 || item.slot === 5) && item.source !== 'open-source')) {
       expect(problem.figureSvg, `${problem.id} needs a figure`).toContain('viewBox="0 0 320 240"');
       expect(problem.figureSvg).not.toMatch(/<svg[^>]*\s(width|height)=/);
     }

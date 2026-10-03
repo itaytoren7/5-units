@@ -23,6 +23,20 @@ describe('study planner', () => {
     expect(lastYellow).toBeLessThan(firstBlue);
   });
 
+  it('puts topics learned in class first, then the rest marked as not learned yet', () => {
+    const learned = new Set(['trig-triangle-solutions', 'trig-geometry-problems', 'geo-circle-angles']);
+    const plan = buildPlan({ ...base, learnedSubtopicIds: learned });
+    const study = plan.weeks.flatMap((week) => week.sessions).filter((session) => session.kind === 'study' && session.questionnaire === '35581');
+    const firstUnlearned = study.findIndex((session) => session.id.includes('-u'));
+    expect(firstUnlearned).toBeGreaterThan(0);
+    for (const session of study.slice(0, firstUnlearned)) expect(session.subtopicIds.every((id) => learned.has(id))).toBe(true);
+    for (const session of study.slice(firstUnlearned)) {
+      expect(session.subtopicIds.some((id) => learned.has(id))).toBe(false);
+      expect(session.title).toContain('עוד לא נלמד בכיתה');
+    }
+    expect(study[0].date <= study[firstUnlearned].date).toBe(true);
+  });
+
   it('places full simulations in each of the last three weeks before an exam', () => {
     const plan = buildPlan(base);
     const sims = plan.weeks.flatMap((week) => week.sessions).filter((session) => session.kind === 'simulation' && session.questionnaire === '35581');

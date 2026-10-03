@@ -1,6 +1,6 @@
 import { isIsoDate } from '../lib/dates';
 import { defaultState, STORAGE_KEY } from './defaults';
-import type { ActiveExam, ExamRecord, MistakeEntry, PastExamEntry, PlanOverride, PlannerSettings, PracticeRecord, ReviewItem, SavedState } from './types';
+import type { ActiveExam, ExamRecord, MistakeEntry, OfficialExamRecord, PastExamEntry, PlanOverride, PlannerSettings, PracticeRecord, ReviewItem, SavedState } from './types';
 
 const RATINGS = new Set(['not-started', 'weak', 'medium', 'mastered']);
 const THEMES = new Set(['light', 'dark', 'system']);
@@ -146,6 +146,20 @@ function parsePlanner(value: unknown): PlannerSettings {
   };
 }
 
+function parseOfficialExams(value: unknown): Record<string, OfficialExamRecord> {
+  if (!isRecord(value)) return {};
+  const result: Record<string, OfficialExamRecord> = {};
+  for (const [id, entry] of Object.entries(value)) {
+    if (!isRecord(entry)) continue;
+    const record: OfficialExamRecord = { status: entry.status === 'done' ? 'done' : 'planned' };
+    if (typeof entry.score === 'number' && Number.isFinite(entry.score)) record.score = Math.min(100, Math.max(0, entry.score));
+    if (isIsoDate(entry.date)) record.date = entry.date;
+    if (typeof entry.notes === 'string' && entry.notes) record.notes = entry.notes;
+    result[id] = record;
+  }
+  return result;
+}
+
 function parseOverrides(value: unknown): Record<string, PlanOverride> {
   return stringMap(value, (entry): entry is PlanOverride => isRecord(entry));
 }
@@ -169,6 +183,8 @@ export function sanitizeState(raw: unknown): SavedState {
     planner: parsePlanner(raw.planner),
     planOverrides: parseOverrides(raw.planOverrides),
     activeExam: parseActiveExam(raw.activeExam),
+    learnedLessons: stringMap(raw.learnedLessons, isTrue),
+    officialExams: parseOfficialExams(raw.officialExams),
   };
 }
 

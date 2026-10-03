@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, Award, BookOpen, CalendarDays, Check, ChevronLeft, PencilLine, Repeat, Target, Timer, TrendingUp } from 'lucide-react';
+import { lazy, Suspense, useEffect, useMemo } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { ArrowLeft, Award, BookOpen, CalendarDays, Check, ChevronLeft, GraduationCap, PencilLine, Repeat, Target, Timer, TrendingUp } from 'lucide-react';
 import type { Questionnaire, Rating, Subtopic, Topic } from '@/data/syllabus/types';
 import { problems } from '@/data/problems';
 import { Markdown } from '../components/Markdown';
@@ -10,10 +10,15 @@ import { Badge, Button, Card, EmptyState, Notice, ProgressBar, ProgressRing, Sec
 import { daysUntil, formatDate, formatShortDate, todayIso } from '../lib/dates';
 import { formatDuration, formatPoints, formatScore } from '../lib/format';
 import { buildPlan } from '../lib/planner';
+import { hasLearnedFilter, learnedSubtopicIds } from '../lib/learned';
+import { startOfWeek } from '../lib/dates';
+import { missedSessionsMessage, overdueMessage, streakAtRiskMessage, type CoachMessage } from '../motivation/coach';
 import { progressOf, ratingOf, slotProgress, topicsOfSlot } from '../lib/progress';
 import { questionnaireList } from '../lib/questionnaires';
-import { dueReviews, nextExam, reviewTitle } from '../lib/selectors';
-import { BadgeGrid, StreakChip } from '../motivation/components';
+import { dueReviews, nextExam, reviewLink, reviewTitle } from '../lib/selectors';
+import { BadgeGrid, CoachCard, StreakChip } from '../motivation/components';
+
+const DailyExercise = lazy(() => import('../components/DailyExercise').then((module) => ({ default: module.DailyExercise })));
 import { useMotivation } from '../motivation/store';
 import { useStore } from '../state/store';
 
@@ -35,7 +40,7 @@ interface Suggestion {
 }
 
 /** Yellow slots first, then blue; inside a slot the weakest self-rating first; mastered subtopics are skipped. */
-function suggestions(ratings: Record<string, Rating>, examDates: Record<string, string>, limit: number): Suggestion[] {
+function suggestions(ratings: Record<string, Rating>, examDates: Record<string, string>, limit: number, learned?: ReadonlySet<string>): Suggestion[] {
   const ratingRank: Record<Rating, number> = { weak: 0, 'not-started': 1, medium: 2, mastered: 3 };
   const ordered = [...questionnaireList].sort((a, b) => (examDates[a.code] ?? '9999').localeCompare(examDates[b.code] ?? '9999'));
   const result: Suggestion[] = [];
@@ -47,6 +52,7 @@ function suggestions(ratings: Record<string, Rating>, examDates: Record<string, 
       for (const topic of topicsOfSlot(questionnaire, slot)) {
         for (const subtopic of topic.subtopics) {
           if (subtopic.status !== 'in' || seen.has(subtopic.id)) continue;
+          if (learned && learned.size > 0 && !learned.has(subtopic.id)) continue;
           const rating = ratingOf(ratings, subtopic.id);
           if (rating === 'mastered') continue;
           candidates.push({ questionnaire, topic, subtopic, slot: slot.number, priority: slot.priority, rating });
@@ -126,8 +132,12 @@ function ExamCard({ questionnaire }: { questionnaire: Questionnaire }) {
 
 export function Dashboard() {
   const { state, actions } = useStore();
-  const { earnedCount, badgeStatuses } = useMotivation();
+  const { earnedCount, badgeStatuses, streak, coach, dismissBanner, activeDays } = useMotivation();
+  const [params] = useSearchParams();
   const today = todayIso();
+  const hour = new Date().getHours();
+  const learned = useMemo(() => learnedSubtopicIds(state), [state]);
+  const anyLearned = hasLearnedFilter(state);
   const upcoming = nextExam(state, today);
   const upcomingQuestionnaire = upcoming ? questionnaireList.find((questionnaire) => questionnaire.code === upcoming.code) : undefined;
   const due = dueReviews(state, today);
@@ -135,15 +145,34 @@ export function Dashboard() {
   const practiced = Object.keys(state.practice).length;
 
   const plan = useMemo(
-    () => buildPlan({ questionnaires: questionnaireList, examDates: state.examDates, ratings: state.ratings, hoursPerWeek: state.planner.hoursPerWeek, studyDays: state.planner.studyDays, sessionMinutes: state.planner.sessionMinutes, today }),
-    [state.examDates, state.ratings, state.planner, today],
+    () => buildPlan({ questionnaires: questionnaireList, examDates: state.examDates, ratings: state.ratings, hoursPerWeek: state.planner.hoursPerWeek, studyDays: state.planner.studyDays, sessionMinutes: state.planner.sessionMinutes, today, learnedSubtopicIds: learned }),
+    [state.examDates, state.ratings, state.planner, today, learned],
   );
+  // Sessions planned earlier this week on days with no study at all (only for students who use the planner).
+  const usesPlanner = Object.values(state.planOverrides).some((override) => override.done);
+  const missed = useMemo(() => {
+    const weekStart = startOfWeek(today);
+    if (weekStart === today || !usesPlanner) return 0;
+    const earlier = buildPlan({ questionnaires: questionnaireList, examDates: state.examDates, ratings: state.ratings, hoursPerWeek: state.planner.hoursPerWeek, studyDays: state.planner.studyDays, sessionMinutes: state.planner.sessionMinutes, today: weekStart, learnedSubtopicIds: learned });
+    const active = new Set(activeDays);
+    return earlier.weeks
+      .flatMap((week) => week.sessions)
+      .filter((session) => session.date < today && !active.has(session.date) && !state.planOverrides[session.id]?.done && !state.planOverrides[session.id]?.removed).length;
+  }, [state.examDates, state.ratings, state.planner, state.planOverrides, today, learned, activeDays, usesPlanner]);
+  const coachBanners = [overdueMessage(state.reviews, today), streakAtRiskMessage(streak.current, streak.activeToday, hour, today), missedSessionsMessage(missed, today)].filter(
+    (message): message is CoachMessage => message !== null && !coach.dismissed[message.id],
+  );
+  useEffect(() => {
+    if (params.get('daily') !== '1') return;
+    const timer = window.setTimeout(() => document.getElementById('daily')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 200);
+    return () => window.clearTimeout(timer);
+  }, [params]);
   const todaySessions = plan.weeks.flatMap((week) => week.sessions).filter((session) => session.date === today && !state.planOverrides[session.id]?.removed);
   const nextSessions = plan.weeks
     .flatMap((week) => week.sessions)
     .filter((session) => session.date > today && !state.planOverrides[session.id]?.removed)
     .slice(0, 3);
-  const nextUp = useMemo(() => suggestions(state.ratings, state.examDates, 6), [state.ratings, state.examDates]);
+  const nextUp = useMemo(() => suggestions(state.ratings, state.examDates, 6, learned), [state.ratings, state.examDates, learned]);
   const recentExams = state.exams.slice(0, 3);
 
   return (
@@ -170,8 +199,11 @@ export function Dashboard() {
               {practiced > 0 ? `תרגלתם עד עכשיו ${practiced} תרגילים.` : 'המקום הכי טוב להתחיל בו: מפת הלמידה.'}
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
-              <Button variant="primary" size="lg" to="/syllabus" icon={<BookOpen size={18} />}>
-                למפת הלמידה
+              <Button variant="primary" size="lg" to="/learn" icon={<GraduationCap size={18} />}>
+                לשיעורים
+              </Button>
+              <Button size="lg" to="/syllabus" icon={<BookOpen size={18} />}>
+                מפת הלמידה
               </Button>
               <Button size="lg" to="/practice" icon={<PencilLine size={18} />}>
                 לתרגול
@@ -192,6 +224,33 @@ export function Dashboard() {
           </div>
         </div>
       </section>
+
+      {coachBanners.length > 0 && (
+        <div className="mb-6 flex flex-col gap-3">
+          {coachBanners.map((message) => (
+            <CoachCard key={message.id} message={message} variant="banner" onClose={() => dismissBanner(message.id)} />
+          ))}
+        </div>
+      )}
+
+      {!anyLearned && (
+        <div className="mb-6">
+          <Notice tone="primary" icon={<GraduationCap size={18} />}>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span>עוד לא סימנתם מה למדתם בכיתה, ולכן ההמלצות והתרגיל היומי כוללים את כל החומר.</span>
+              <Link to="/learn" className="inline-flex items-center gap-1 font-bold">
+                לסימון <ArrowLeft size={16} />
+              </Link>
+            </div>
+          </Notice>
+        </div>
+      )}
+
+      <div id="daily" className="mb-6 scroll-mt-24">
+        <Suspense fallback={<Card><div className="py-8 text-center text-sm text-muted">טוען את התרגיל היומי…</div></Card>}>
+          <DailyExercise today={today} hour={hour} />
+        </Suspense>
+      </div>
 
       {state.activeExam && state.activeExam.phase !== 'setup' && (
         <div className="mb-6">
@@ -214,7 +273,7 @@ export function Dashboard() {
 
       <div className="grid gap-5 md:grid-cols-2">
         <Card>
-          <SectionTitle icon={<Target size={18} />} title="מה ללמוד עכשיו" description="קודם השאלות הצהובות, ובתוכן מה שסימנתם כחלש" />
+          <SectionTitle icon={<Target size={18} />} title="מה ללמוד עכשיו" description={anyLearned ? 'מתוך מה שלמדתם בכיתה: קודם הצהוב, ובתוכו מה שסימנתם כחלש' : 'קודם השאלות הצהובות, ובתוכן מה שסימנתם כחלש'} />
           {nextUp.length === 0 ? (
             <EmptyState icon={<Check size={22} />} title="הכול מסומן ״שולט״" description="כל הכבוד. עכשיו סימולציות וחזרות." />
           ) : (
@@ -292,7 +351,7 @@ export function Dashboard() {
                 {due.slice(0, 5).map((review) => (
                   <li key={review.id} className="flex items-center gap-2 rounded-xl bg-surface-2 px-3.5 py-2.5 text-sm">
                     <span className="min-w-0 flex-1 truncate">
-                      <Link to={review.sourceType === 'problem' ? `/practice/${review.sourceId}` : '/mistakes'} className="font-semibold hover:text-primary">
+                      <Link to={reviewLink(review)} className="font-semibold hover:text-primary">
                         {reviewTitle(review, state)}
                       </Link>
                     </span>

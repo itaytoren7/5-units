@@ -94,6 +94,16 @@ export interface PlanOverride {
   removed?: boolean;
 }
 
+/** Progress on one official past exam from the ministry archive (see src/data/officialExams.ts). */
+export interface OfficialExamRecord {
+  status: 'planned' | 'done';
+  /** 0–100 */
+  score?: number;
+  /** YYYY-MM-DD */
+  date?: string;
+  notes?: string;
+}
+
 export interface SavedState {
   version: 1;
   theme: Theme;
@@ -109,4 +119,8 @@ export interface SavedState {
   planner: PlannerSettings;
   planOverrides: Record<string, PlanOverride>;
   activeExam: ActiveExam | null;
+  /** Study-book lessons the student has already learned in class (lesson id → true). Empty = no filter. */
+  learnedLessons: Record<string, true>;
+  /** official exam id → progress */
+  officialExams: Record<string, OfficialExamRecord>;
 }

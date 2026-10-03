@@ -7,6 +7,7 @@ import { slot5Problems } from './slot5';
 import { slot6Problems } from './slot6';
 import { slot7Problems } from './slot7';
 import { slot8Problems } from './slot8';
+import { archiveProblems } from './archive';
 
 export const problems35581: Problem[] = [
   ...slot1Problems,
@@ -17,4 +18,5 @@ export const problems35581: Problem[] = [
   ...slot6Problems,
   ...slot7Problems,
   ...slot8Problems,
+  ...archiveProblems,
 ];

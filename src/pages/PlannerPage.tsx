@@ -4,6 +4,7 @@ import { AlertTriangle, CalendarDays, Check, ChevronDown, RotateCcw, Timer, Tras
 import { PriorityBadge } from '../components/StatusBadge';
 import { Badge, Button, Card, Collapse, Field, Notice, PageHeader, ProgressBar, SectionTitle, Stat } from '../components/ui';
 import { formatShortDate, todayIso, weekdayName, weekdayOf } from '../lib/dates';
+import { learnedSubtopicIds } from '../lib/learned';
 import { buildPlan } from '../lib/planner';
 import { questionnaireByCode, questionnaireList } from '../lib/questionnaires';
 import { useStore } from '../state/store';
@@ -12,8 +13,8 @@ export function PlannerPage() {
   const { state, actions } = useStore();
   const today = todayIso();
   const plan = useMemo(
-    () => buildPlan({ questionnaires: questionnaireList, examDates: state.examDates, ratings: state.ratings, hoursPerWeek: state.planner.hoursPerWeek, studyDays: state.planner.studyDays, sessionMinutes: state.planner.sessionMinutes, today }),
-    [state.examDates, state.ratings, state.planner, today],
+    () => buildPlan({ questionnaires: questionnaireList, examDates: state.examDates, ratings: state.ratings, hoursPerWeek: state.planner.hoursPerWeek, studyDays: state.planner.studyDays, sessionMinutes: state.planner.sessionMinutes, today, learnedSubtopicIds: learnedSubtopicIds(state) }),
+    [state.examDates, state.ratings, state.planner, state.learnedLessons, today],
   );
   const hasDates = Object.keys(state.examDates).length > 0;
   const allSessions = plan.weeks.flatMap((week) => week.sessions);

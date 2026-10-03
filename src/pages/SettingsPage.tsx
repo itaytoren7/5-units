@@ -16,7 +16,7 @@ export function SettingsPage() {
   const fileInput = useRef<HTMLInputElement>(null);
 
   const download = () => {
-    const blob = new Blob([exportState(state, { motivation: motivation.state })], { type: 'application/json' });
+    const blob = new Blob([exportState(state, { motivation: motivation.state, coach: motivation.coach })], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;

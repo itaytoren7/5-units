@@ -1,5 +1,19 @@
 export type QuestionnaireCode = '35581' | '35582';
-export type ProblemSource = 'ai-generated' | 'teacher' | 'self';
+export type ProblemSource = 'ai-generated' | 'teacher' | 'self' | 'open-source';
+
+/** Attribution for content adapted from openly licensed sources (required when source is 'open-source'). */
+export interface SourceAttribution {
+  kind: 'openstax' | 'wikibooks';
+  /** Book / page title, e.g. 'OpenStax, Algebra and Trigonometry 2e' or 'ויקיספר: מתמטיקה תיכונית' */
+  work: string;
+  /** Section and exercise number, or the original exam, e.g. 'בגרות קיץ תשע״ז, שאלון 035806, שאלה 4' */
+  section: string;
+  url: string;
+  license: string;
+  licenseUrl: string;
+  /** True when the text was translated or changed. */
+  adapted: boolean;
+}
 export type Difficulty = 1 | 2 | 3;
 
 /** One סעיף of a multi-section bagrut-style problem. All text fields are Markdown with KaTeX ($...$ / $$...$$). */
@@ -36,4 +50,6 @@ export interface Problem {
   source: ProblemSource;
   /** Optional inline SVG (viewBox-based, no fixed width/height) describing the figure for geometry problems. */
   figureSvg?: string;
+  /** Where an 'open-source' problem comes from. */
+  attribution?: SourceAttribution;
 }

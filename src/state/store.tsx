@@ -4,7 +4,7 @@ import { uid } from '../lib/ids';
 import { isReviewFinished, reviewDueDate } from '../lib/spaced';
 import { defaultState } from './defaults';
 import { clearState, loadState, saveState } from './storage';
-import type { ActiveExam, ExamRecord, FocusMode, MistakeEntry, PastExamEntry, PlanOverride, PlannerSettings, SavedState, SectionResult, Theme } from './types';
+import type { ActiveExam, ExamRecord, FocusMode, MistakeEntry, OfficialExamRecord, PastExamEntry, PlanOverride, PlannerSettings, SavedState, SectionResult, Theme } from './types';
 import type { Rating } from '@/data/syllabus/types';
 import type { QuestionnaireCode } from '@/data/problems/types';
 
@@ -16,7 +16,8 @@ export interface StoreActions {
   setExamDate(code: string, date: string): void;
   setRating(subtopicId: string, rating: Rating): void;
   setProblemVerified(problemId: string, verified: boolean): void;
-  recordSectionResult(problemId: string, sectionId: string, result: SectionResult, questionnaire: QuestionnaireCode): void;
+  /** `review: false` records the result without scheduling a spaced review (used by generated exercises). */
+  recordSectionResult(problemId: string, sectionId: string, result: SectionResult, questionnaire: QuestionnaireCode, options?: { review?: boolean }): void;
   addMistake(entry: Omit<MistakeEntry, 'id' | 'createdAt'>): string;
   updateMistake(id: string, patch: Partial<Omit<MistakeEntry, 'id' | 'createdAt'>>): void;
   deleteMistake(id: string): void;
@@ -31,6 +32,8 @@ export interface StoreActions {
   setPlanner(patch: Partial<PlannerSettings>): void;
   setPlanOverride(sessionId: string, patch: PlanOverride): void;
   clearPlanOverrides(): void;
+  setLessonsLearned(lessonIds: string[], learned: boolean): void;
+  setOfficialExam(examId: string, record: OfficialExamRecord | null): void;
   importState(state: SavedState): void;
   resetState(): void;
 }
@@ -113,7 +116,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           else delete verifiedProblems[problemId];
           return { ...current, verifiedProblems };
         }),
-      recordSectionResult: (problemId, sectionId, result, questionnaire) =>
+      recordSectionResult: (problemId, sectionId, result, questionnaire, options) =>
         update((current) => {
           const existing = current.practice[problemId];
           const record = {
@@ -123,7 +126,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             lastPracticedAt: new Date().toISOString(),
           };
           const next = { ...current, practice: { ...current.practice, [problemId]: record } };
-          return result === 'wrong' ? ensureReview(next, 'problem', problemId, questionnaire) : next;
+          return result === 'wrong' && options?.review !== false ? ensureReview(next, 'problem', problemId, questionnaire) : next;
         }),
       addMistake: (entry) => {
         const id = uid('mis');
@@ -164,6 +167,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setPlanner: (patch) => update((current) => ({ ...current, planner: { ...current.planner, ...patch } })),
       setPlanOverride: (sessionId, patch) => update((current) => ({ ...current, planOverrides: { ...current.planOverrides, [sessionId]: { ...current.planOverrides[sessionId], ...patch } } })),
       clearPlanOverrides: () => update((current) => ({ ...current, planOverrides: {} })),
+      setLessonsLearned: (lessonIds, learned) =>
+        update((current) => {
+          const learnedLessons = { ...current.learnedLessons };
+          for (const id of lessonIds) {
+            if (learned) learnedLessons[id] = true;
+            else delete learnedLessons[id];
+          }
+          return { ...current, learnedLessons };
+        }),
+      setOfficialExam: (examId, record) =>
+        update((current) => {
+          const officialExams = { ...current.officialExams };
+          if (record) officialExams[examId] = record;
+          else delete officialExams[examId];
+          return { ...current, officialExams };
+        }),
       importState: (imported) => setState(imported),
       resetState: () => {
         clearState();

@@ -17,6 +17,9 @@ const PlannerPage = lazy(() => import('./pages/PlannerPage').then((module) => ({
 const MistakesPage = lazy(() => import('./pages/MistakesPage').then((module) => ({ default: module.MistakesPage })));
 const PastExamsPage = lazy(() => import('./pages/PastExamsPage').then((module) => ({ default: module.PastExamsPage })));
 const DesignPreview = lazy(() => import('./pages/DesignPreview').then((module) => ({ default: module.DesignPreview })));
+const LearnHub = lazy(() => import('./pages/LearnHub').then((module) => ({ default: module.LearnHub })));
+const ChapterPage = lazy(() => import('./pages/ChapterPage').then((module) => ({ default: module.ChapterPage })));
+const LessonPage = lazy(() => import('./pages/LessonPage').then((module) => ({ default: module.LessonPage })));
 const FormulaSheetPage = lazy(() => import('./pages/FormulaSheetPage').then((module) => ({ default: module.FormulaSheetPage })));
 
 function Loading() {
@@ -36,6 +39,9 @@ export default function App() {
           <Route path="/syllabus" element={<SyllabusHub />} />
           <Route path="/syllabus/:code" element={<SyllabusPage />} />
           <Route path="/topic/:code/:topicId" element={<TopicPage />} />
+          <Route path="/learn" element={<LearnHub />} />
+          <Route path="/learn/:chapterId" element={<ChapterPage />} />
+          <Route path="/learn/:chapterId/:lessonId" element={<LessonPage />} />
           <Route path="/practice" element={<PracticeHub />} />
           <Route path="/practice/:problemId" element={<PracticePage />} />
           <Route path="/simulator" element={<SimulatorHub />} />

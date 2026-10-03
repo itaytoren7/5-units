@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { registerSW } from 'virtual:pwa-register';
 import App from './App';
-import { BadgePop } from './motivation/components';
+import { BadgePop, CoachPop } from './motivation/components';
 import { MotivationProvider } from './motivation/store';
 import { StoreProvider } from './state/store';
 import './styles.css';
@@ -19,6 +19,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <MotivationProvider>
           <App />
           <BadgePop />
+          <CoachPop />
         </MotivationProvider>
       </StoreProvider>
     </BrowserRouter>

@@ -5,7 +5,7 @@ import { MistakeForm, mistakeTypeLabels } from '../components/MistakeForm';
 import { Badge, Button, Card, Collapse, EmptyState, PageHeader, SectionTitle, Segmented, Stat } from '../components/ui';
 import { formatDateTime, formatShortDate, todayIso } from '../lib/dates';
 import { questionnaireByCode } from '../lib/questionnaires';
-import { dueReviews, reviewTitle, upcomingReviews } from '../lib/selectors';
+import { dueReviews, reviewLink, reviewTitle, upcomingReviews } from '../lib/selectors';
 import { useStore } from '../state/store';
 import type { MistakeType } from '../state/types';
 
@@ -67,7 +67,7 @@ export function MistakesPage() {
                   <li key={review.id} className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm ${isDue ? 'bg-orange-soft' : 'bg-surface-2'}`}>
                     <span className="min-w-0 flex-1">
                       {review.sourceType === 'problem' ? (
-                        <Link to={`/practice/${review.sourceId}`} className="block truncate text-base font-semibold hover:text-primary">
+                        <Link to={reviewLink(review)} className="block truncate text-base font-semibold hover:text-primary">
                           {reviewTitle(review, state)}
                         </Link>
                       ) : (

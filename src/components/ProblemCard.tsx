@@ -45,6 +45,7 @@ export function ProblemCard({ problem, showSlot = true }: { problem: Problem; sh
       </div>
       <div className="flex flex-wrap items-center gap-1.5 text-sm text-muted">
         {showSlot && <Badge tone="primary">שאלה {problem.slot}</Badge>}
+        {problem.source === 'open-source' && <Badge tone="blue">בגרות עבר</Badge>}
         <DifficultyBadge difficulty={problem.difficulty} />
         <VerifiedBadge problem={problem} />
       </div>
