@@ -493,3 +493,8 @@ details > summary::-webkit-details-marker { display: none; }
 @media (prefers-reduced-motion: reduce) { .coach-pop { animation: none; } }
 [data-motion='reduced'] .coach-pop { animation: none; }
 @media print { .coach-pop { display: none; } }
+
+/* A single-column grid must never grow wider than its container (long math or words wrap instead). */
+@layer base {
+  .grid { grid-template-columns: minmax(0, 1fr); }
+}
