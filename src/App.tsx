@@ -20,6 +20,8 @@ const DesignPreview = lazy(() => import('./pages/DesignPreview').then((module) =
 const LearnHub = lazy(() => import('./pages/LearnHub').then((module) => ({ default: module.LearnHub })));
 const ChapterPage = lazy(() => import('./pages/ChapterPage').then((module) => ({ default: module.ChapterPage })));
 const LessonPage = lazy(() => import('./pages/LessonPage').then((module) => ({ default: module.LessonPage })));
+const SetsHub = lazy(() => import('./pages/SetsHub').then((module) => ({ default: module.SetsHub })));
+const SetPlayer = lazy(() => import('./pages/SetPlayer').then((module) => ({ default: module.SetPlayer })));
 const FormulaSheetPage = lazy(() => import('./pages/FormulaSheetPage').then((module) => ({ default: module.FormulaSheetPage })));
 
 function Loading() {
@@ -42,6 +44,8 @@ export default function App() {
           <Route path="/learn" element={<LearnHub />} />
           <Route path="/learn/:chapterId" element={<ChapterPage />} />
           <Route path="/learn/:chapterId/:lessonId" element={<LessonPage />} />
+          <Route path="/sets" element={<SetsHub />} />
+          <Route path="/sets/:setId" element={<SetPlayer />} />
           <Route path="/practice" element={<PracticeHub />} />
           <Route path="/practice/:problemId" element={<PracticePage />} />
           <Route path="/simulator" element={<SimulatorHub />} />

@@ -7,6 +7,7 @@ import { daysUntil, formatDate } from '../lib/dates';
 import { questionnaireList } from '../lib/questionnaires';
 import { STORAGE_KEY } from '../state/defaults';
 import { exportState, parseImportedState } from '../state/storage';
+import { importSetsFromBackup, loadSets } from '../sets/storage';
 import { useStore } from '../state/store';
 
 export function SettingsPage() {
@@ -16,7 +17,7 @@ export function SettingsPage() {
   const fileInput = useRef<HTMLInputElement>(null);
 
   const download = () => {
-    const blob = new Blob([exportState(state, { motivation: motivation.state, coach: motivation.coach })], { type: 'application/json' });
+    const blob = new Blob([exportState(state, { motivation: motivation.state, coach: motivation.coach, sets: loadSets() })], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -34,6 +35,7 @@ export function SettingsPage() {
         const text = String(reader.result);
         actions.importState(parseImportedState(text));
         motivation.importFromBackup(text);
+        importSetsFromBackup(text);
         notify('הגיבוי נטען בהצלחה');
       } catch (error) {
         notify(error instanceof Error ? error.message : 'קובץ הגיבוי אינו תקין');

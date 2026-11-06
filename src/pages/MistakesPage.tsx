@@ -5,7 +5,7 @@ import { MistakeForm, mistakeTypeLabels } from '../components/MistakeForm';
 import { Badge, Button, Card, Collapse, EmptyState, PageHeader, SectionTitle, Segmented, Stat } from '../components/ui';
 import { formatDateTime, formatShortDate, todayIso } from '../lib/dates';
 import { questionnaireByCode } from '../lib/questionnaires';
-import { dueReviews, reviewLink, reviewTitle, upcomingReviews } from '../lib/selectors';
+import { dueReviews, exerciseLink, reviewLink, reviewTitle, upcomingReviews } from '../lib/selectors';
 import { useStore } from '../state/store';
 import type { MistakeType } from '../state/types';
 
@@ -133,8 +133,8 @@ export function MistakesPage() {
                           </p>
                         )}
                         <div className="mt-4 flex flex-wrap gap-2">
-                          {mistake.problemId && (
-                            <Button size="sm" variant="soft" to={`/practice/${mistake.problemId}`}>
+                          {mistake.problemId && exerciseLink(mistake.problemId) && (
+                            <Button size="sm" variant="soft" to={exerciseLink(mistake.problemId)!}>
                               לתרגיל
                             </Button>
                           )}
