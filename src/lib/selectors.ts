@@ -64,10 +64,15 @@ export function nextExam(state: SavedState, today = todayIso()): { code: string;
   return dated[0] ?? null;
 }
 
+/** Where an exercise id lives: a bagrut problem, a lesson exercise, or nowhere (null). */
+export function exerciseLink(id: string): string | null {
+  if (problemById(id)) return `/practice/${id}`;
+  const lesson = lessonMetaById(lessonIdOfExercise(id));
+  return lesson ? `${lessonPath(lesson)}#ex-${id}` : null;
+}
+
 /** Where a review item takes the student: the bagrut problem, the lesson exercise, or the mistakes log. */
 export function reviewLink(review: ReviewItem): string {
   if (review.sourceType !== 'problem') return '/mistakes';
-  if (problemById(review.sourceId)) return `/practice/${review.sourceId}`;
-  const lesson = lessonMetaById(lessonIdOfExercise(review.sourceId));
-  return lesson ? `${lessonPath(lesson)}#ex-${review.sourceId}` : '/mistakes';
+  return exerciseLink(review.sourceId) ?? '/mistakes';
 }
