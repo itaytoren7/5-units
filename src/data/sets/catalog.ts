@@ -16,7 +16,7 @@ const planned = (id: string, questionnaire: QuestionnaireCode, topicId: string, 
 export const setsCatalog: CatalogEntry[] = [
   /* ---- 35581 · טריגונומטריה (שאלה 5, וחלקים משאלה 7) ---- */
   { id: 'trig-right-triangle', title: 'טריגונומטריה במשולש ישר זווית', questionnaire: '35581', topicId: 'trigonometry', summary: 'סינוס, קוסינוס וטנגנס במשולש ישר זווית, מצולעים שמתפרקים למשולשים ישרי זווית, ושאלות עם פרמטר α.', status: 'done' },
-  planned('trig-unit-circle', '35581', 'trigonometry', 'מעגל היחידה, רדיאנים וזוויות מיוחדות', 'ערכי sin, cos, tan במעגל היחידה, מעבר בין מעלות לרדיאנים, זוויות משלימות ל-90° ול-180°, אורך קשת ושטח גזרה.'),
+  { id: 'trig-unit-circle', title: 'מעגל היחידה, רדיאנים וזוויות מיוחדות', questionnaire: '35581', topicId: 'trigonometry', summary: 'ערכי sin, cos, tan במעגל היחידה, מעבר בין מעלות לרדיאנים, זוויות משלימות ל-90° ול-180°, אורך קשת ושטח גזרה.', status: 'done' },
   planned('trig-identities', '35581', 'trigonometry', 'זהויות טריגונומטריות', 'tan=sin/cos, sin²+cos²=1, סכום והפרש זוויות, זווית כפולה; פישוט ביטויים והוכחת זהויות.'),
   planned('trig-equations-basic', '35581', 'trigonometry', 'משוואות טריגונומטריות בסיסיות', 'sin(ax+b)=c, cos(ax+b)=c, tan(ax+b)=c: פתרון כללי ופתרון בתחום נתון, במעלות וברדיאנים.'),
   planned('trig-equations-advanced', '35581', 'trigonometry', 'משוואות טריגונומטריות מתקדמות', 'sinα=sinβ, cosα=cosβ, a·sinx±b·cosx=0, פירוק לגורמים ומשוואה ריבועית ב-sin או ב-cos, כחלק מבעיה.'),
