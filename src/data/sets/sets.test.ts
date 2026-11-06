@@ -84,6 +84,11 @@ describe('exercise sets', () => {
     for (const entry of setsCatalog) if (entry.status === 'done') expect(ids, `${entry.id}: marked done but has no file`).toContain(entry.id);
     const catalogIds = setsCatalog.map((entry) => entry.id);
     expect(new Set(catalogIds).size).toBe(catalogIds.length);
+    for (const entry of setsCatalog) {
+      const questionnaire = questionnaires.find((item) => item.code === entry.questionnaire);
+      expect(questionnaire?.topics.some((topic) => topic.id === entry.topicId), `${entry.id}: topic ${entry.topicId}`).toBe(true);
+      expect(entry.summary.trim().length, `${entry.id}: summary`).toBeGreaterThan(20);
+    }
   });
 
   it.each(sets.map((set) => [set.id, set] as const))('%s: syllabus links, structure and numeric answers', (_id, set) => {
