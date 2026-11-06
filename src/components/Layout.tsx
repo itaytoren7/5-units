@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { AlertTriangle, BookOpen, CalendarDays, GraduationCap, History, Home, Monitor, Moon, MoreHorizontal, PencilLine, Settings, Sigma, Sun, Timer, X } from 'lucide-react';
+import { AlertTriangle, BookOpen, CalendarDays, GraduationCap, History, Home, ListChecks, Monitor, Moon, MoreHorizontal, PencilLine, Settings, Sigma, Sun, Timer, X } from 'lucide-react';
 import { useStore } from '../state/store';
 import type { Theme } from '../state/types';
 
@@ -21,6 +21,7 @@ export const primaryNav: NavEntry[] = [
 ];
 
 export const secondaryNav: NavEntry[] = [
+  { to: '/sets', label: 'סטים לתרגול', description: 'סטים מדורגים מהקל לבגרות, עם בדיקה והקראה', icon: ListChecks },
   { to: '/planner', label: 'מתכנן למידה', description: 'תוכנית שבועית לפי הזמן שיש לך', icon: CalendarDays },
   { to: '/mistakes', label: 'יומן טעויות', description: 'מה השתבש, איך נכון, ומתי לחזור', icon: AlertTriangle },
   { to: '/past-exams', label: 'בחינות עבר', description: 'מעקב אחרי בגרויות אמיתיות שפתרת', icon: History },
@@ -31,8 +32,8 @@ export const secondaryNav: NavEntry[] = [
 const sidebarGroups: Array<{ label?: string; items: NavEntry[] }> = [
   { items: [primaryNav[0]] },
   { label: 'למידה', items: primaryNav.slice(1) },
-  { label: 'כלים', items: secondaryNav.slice(0, 4) },
-  { items: [secondaryNav[4]] },
+  { label: 'כלים', items: secondaryNav.slice(0, 5) },
+  { items: [secondaryNav[5]] },
 ];
 
 const themeOptions: Array<{ value: Theme; icon: typeof Sun; label: string }> = [
