@@ -23,7 +23,7 @@ export function LearnHub() {
           </Notice>
         </div>
       )}
-      <div className="grid gap-5 md:grid-cols-2">
+      <div className="stagger grid gap-5 md:grid-cols-2">
         {chapters.map((chapter) => {
           const list = lessonsOfChapter(chapter.id);
           const inScope = list.filter((lesson) => isInScope(lesson.status));

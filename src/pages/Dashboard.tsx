@@ -22,6 +22,7 @@ const DailyExercise = lazy(() => import('../components/DailyExercise').then((mod
 import { useMotivation } from '../motivation/store';
 import { useStore } from '../state/store';
 import { examNumber } from '@/lib/questionnaires';
+import { CountUp } from '../motion/components';
 
 function greeting(now = new Date()): string {
   const hour = now.getHours();
@@ -179,7 +180,11 @@ export function Dashboard() {
   return (
     <>
       <section className="card relative mb-6 overflow-hidden p-6 sm:p-8 lg:p-10">
-        <div className="pointer-events-none absolute -end-24 -top-24 h-72 w-72 rounded-full bg-primary-soft opacity-70 blur-2xl" aria-hidden="true" />
+        <div className="aurora" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </div>
         <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-[60ch]">
             <div className="flex flex-wrap items-center gap-3">
@@ -189,7 +194,11 @@ export function Dashboard() {
             <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">
               {upcoming && upcomingQuestionnaire ? (
                 <>
-                  עוד <span className="tabular-nums text-primary">{upcoming.days}</span> ימים לשאלון {upcomingQuestionnaire.nickname}
+                  עוד{' '}
+                  <span className="tabular-nums text-primary">
+                    <CountUp value={upcoming.days} />
+                  </span>{' '}
+                  ימים לשאלון {upcomingQuestionnaire.nickname}
                 </>
               ) : (
                 'כל צעד קטן מקרב אותך ל־100'

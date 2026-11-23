@@ -1,6 +1,7 @@
 import { useEffect, useId, useState, type ButtonHTMLAttributes, type CSSProperties, type ReactNode, type Ref } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
+import { CountUp } from '../motion/components';
 
 export type Tone = 'primary' | 'yellow' | 'blue' | 'green' | 'red' | 'orange' | 'neutral';
 
@@ -159,7 +160,11 @@ export function ProgressRing({ percent, size = 72, stroke = 8, tone = 'primary',
         />
       </svg>
       <div className="absolute inset-0 grid place-items-center text-center font-bold tabular-nums" style={{ fontSize: Math.max(12, size * 0.22) }}>
-        {children ?? `${Math.round(value)}%`}
+        {children ?? (
+          <>
+            <CountUp value={Math.round(value)} />%
+          </>
+        )}
       </div>
     </div>
   );

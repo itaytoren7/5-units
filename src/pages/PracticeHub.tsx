@@ -70,7 +70,7 @@ export function PracticeHub() {
           label="שאלה"
           value={slotParam}
           onChange={(next) => setParam('slot', next)}
-          options={[{ value: 'all', label: 'כל השאלות' }, ...slotsWithProblems.map((slot) => ({ value: String(slot.number), label: `שאלה ${slot.number}`, title: slot.title }))]}
+          options={[{ value: 'all', label: 'כל השאלות' }, ...slotsWithProblems.map((slot) => ({ value: String(slot.number), label: `שאלה ${slot.examNumber ?? slot.number}`, title: slot.title }))]}
         />
         <Segmented
           label="סטטוס"

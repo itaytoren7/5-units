@@ -11,6 +11,7 @@ import { formatClock } from '../lib/dates';
 import { formatDuration, formatPoints, formatScore } from '../lib/format';
 import { calculateExamScore, getQuestionValue } from '../lib/scoring';
 import { examNumber, isQuestionnaireCode, questionnaireByCode } from '../lib/questionnaires';
+import { celebrate } from '../motion/motion';
 import { useStore } from '../state/store';
 import type { ActiveExam } from '../state/types';
 import { NotFound } from './NotFound';
@@ -322,6 +323,7 @@ export function SimulatorPage() {
   const finish = () => {
     actions.finishExam({ questionnaire: code, startedAt: exam.startedAt ?? new Date().toISOString(), finishedAt: new Date().toISOString(), elapsedSeconds: Math.max(0, elapsed), chosenSlots: counted, problemBySlot: exam.problemBySlot, grades: exam.grades, score, notes });
     notify(`הסימולציה נשמרה · ציון ${formatScore(score)}`);
+    if (score >= 85) celebrate();
     navigate('/simulator');
   };
   const chipTone = (fraction: number | undefined) => (fraction === undefined ? '' : fraction >= 1 ? 'chip-green' : fraction > 0 ? 'chip-orange' : 'chip-red');

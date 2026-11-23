@@ -7,6 +7,7 @@ import { BadgePop, CoachPop } from './motivation/components';
 import { MotivationProvider } from './motivation/store';
 import { StoreProvider } from './state/store';
 import './styles.css';
+import './motion/motion.css';
 
 registerSW({ immediate: true });
 

@@ -32,7 +32,7 @@ export function SetsHub() {
                   return (
                     <div key={topicId}>
                       <h3 className="mb-2 text-base font-bold">{topic?.title ?? topicId}</h3>
-                      <ul className="grid gap-3 sm:grid-cols-2">
+                      <ul className="stagger grid gap-3 sm:grid-cols-2">
                         {topicSets.map((set) => {
                           const total = set.exercises.reduce((sum, exercise) => sum + exercise.sections.length, 0);
                           const results = state.progress[set.id]?.results ?? {};

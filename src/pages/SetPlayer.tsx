@@ -10,6 +10,7 @@ import { NoHebrewVoiceNote, ReadAloud, SpeedPicker } from '../sets/ReadAloud';
 import { useReadAloud } from '../sets/speech';
 import { loadSets, recordOutcome, resetSet, setCurrentExercise, setSpeechRate, useSetsState, type SectionOutcome } from '../sets/storage';
 import { useStore } from '../state/store';
+import { ScoreReveal } from '../motion/components';
 import { NotFound } from './NotFound';
 
 const levelLabels = { 1: 'בסיסי', 2: 'בינוני', 3: 'רמת בגרות' } as const;
@@ -69,7 +70,7 @@ function SectionView({ setId, exercise, section, outcome, onOutcome, aloud, rate
         >
           <label className="flex min-w-[10rem] flex-col gap-1 text-sm font-semibold text-muted">
             התשובה שלי
-            <input dir="ltr" inputMode="decimal" autoComplete="off" className="answer-input" value={ui.input} onChange={(event) => setUi((current) => ({ ...current, input: event.target.value, verdict: null }))} aria-invalid={ui.verdict === 'wrong' || ui.verdict === 'invalid' ? true : undefined} />
+            <input dir="ltr" inputMode="decimal" autoComplete="off" className={`answer-input ${ui.verdict === 'correct' ? 'answer-ok' : ui.verdict === 'wrong' || ui.verdict === 'invalid' ? 'answer-bad' : ''}`} value={ui.input} onChange={(event) => setUi((current) => ({ ...current, input: event.target.value, verdict: null }))} aria-invalid={ui.verdict === 'wrong' || ui.verdict === 'invalid' ? true : undefined} />
           </label>
           <Button type="submit" variant="primary" icon={<Check size={16} />}>
             בדוק
@@ -97,8 +98,8 @@ function SectionView({ setId, exercise, section, outcome, onOutcome, aloud, rate
       )}
 
       <div className="min-h-[1.25rem] text-sm" aria-live="polite">
-        {ui.verdict === 'correct' && <span className="inline-flex items-center gap-1 font-bold text-green"><CircleCheck size={16} /> נכון.</span>}
-        {ui.verdict === 'wrong' && <span className="inline-flex items-center gap-1 font-bold text-red"><CircleX size={16} /> לא נכון. התשובה נרשמה ביומן הטעויות. קראו את ההסבר.</span>}
+        {ui.verdict === 'correct' && <span className="verdict-pop inline-flex items-center gap-1 font-bold text-green"><CircleCheck size={16} /> נכון.</span>}
+        {ui.verdict === 'wrong' && <span className="verdict-pop inline-flex items-center gap-1 font-bold text-red"><CircleX size={16} /> לא נכון. התשובה נרשמה ביומן הטעויות. קראו את ההסבר.</span>}
         {ui.verdict === 'invalid' && <span className="font-semibold text-orange">לא הצלחתי לקרוא את המספר. נסו בפורמט אחר.</span>}
         {ui.verdict === 'empty' && <span className="text-muted">כתבו תשובה או בחרו אפשרות לפני הבדיקה.</span>}
       </div>
@@ -236,7 +237,7 @@ export function SetPlayer() {
         <PageHeader eyebrow={<Link to="/sets" className="hover:underline">סטים לתרגול</Link>} title={set.title} description="סיימתם את הסט. כך זה הלך:" />
         <Card className="mb-5">
           <div className="mb-4 flex items-center gap-4">
-            <span className={`text-4xl font-bold tabular-nums ${percent >= 85 ? 'text-green' : percent >= 55 ? 'text-orange' : 'text-red'}`}>{percent}%</span>
+            <ScoreReveal percent={percent} className={`text-4xl font-bold tabular-nums ${percent >= 85 ? 'text-green' : percent >= 55 ? 'text-orange' : 'text-red'}`} />
             <span className="text-muted">
               {correct} מתוך {total} סעיפים נכונים
             </span>

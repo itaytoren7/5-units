@@ -272,7 +272,7 @@ export function PodcastPage() {
                     </div>
                   </div>
                   <Card padding="none">
-                    <ol className="pod-list">
+                    <ol className="pod-list stagger">
                       {group.episodes.map((episode) => (
                         <EpisodeRow
                           key={episode.id}

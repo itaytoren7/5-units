@@ -73,7 +73,7 @@ export function ChapterPage() {
         </div>
       </PageHeader>
 
-      <ol className="lesson-path">
+      <ol className="lesson-path stagger">
         {list.map((lesson) => {
           const scope = isInScope(lesson.status);
           const lessonState = lessonProgress(lesson, state);

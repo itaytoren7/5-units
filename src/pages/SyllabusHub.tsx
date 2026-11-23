@@ -22,7 +22,7 @@ export function SyllabusHub() {
           </label>
         }
       />
-      <div className="grid gap-5 md:grid-cols-2">
+      <div className="stagger grid gap-5 md:grid-cols-2">
         {questionnaireList.map((questionnaire) => {
           const progress = progressOf(questionnaire, state.ratings);
           return (

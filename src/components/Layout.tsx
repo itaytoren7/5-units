@@ -1,6 +1,7 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { AlertTriangle, BookOpen, CalendarDays, GraduationCap, Headphones, History, Home, ListChecks, Monitor, Moon, MoreHorizontal, PencilLine, Settings, Sigma, Sun, Timer, X } from 'lucide-react';
+import { usePageMotion } from '../motion/motion';
 import { useStore } from '../state/store';
 import type { Theme } from '../state/types';
 
@@ -148,6 +149,10 @@ export function Layout({ children }: { children: ReactNode }) {
 
   useEffect(() => setMoreOpen(false), [pathname]);
 
+  // Page entrance and scroll reveals; off during a running simulation, where nothing should move.
+  const pageRef = useRef<HTMLDivElement>(null);
+  usePageMotion(pageRef, pathname, !focusMode);
+
   return (
     <div className="min-h-dvh">
       <ScrollToTop />
@@ -185,7 +190,7 @@ export function Layout({ children }: { children: ReactNode }) {
       )}
 
       <main className={`${focusMode ? '' : 'main-shell'} min-w-0`}>
-        <div key={pathname} className={`page-enter mx-auto w-full max-w-[1120px] px-4 pb-28 pt-5 sm:px-6 lg:px-10 lg:pb-16 lg:pt-10 ${focusMode ? 'lg:pt-6' : ''}`}>
+        <div key={pathname} ref={pageRef} className={`page-enter mx-auto w-full max-w-[1120px] px-4 pb-28 pt-5 sm:px-6 lg:px-10 lg:pb-16 lg:pt-10 ${focusMode ? 'lg:pt-6' : ''}`}>
           {children}
         </div>
       </main>
