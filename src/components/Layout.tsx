@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { AlertTriangle, BookOpen, CalendarDays, GraduationCap, History, Home, ListChecks, Monitor, Moon, MoreHorizontal, PencilLine, Settings, Sigma, Sun, Timer, X } from 'lucide-react';
+import { AlertTriangle, BookOpen, CalendarDays, GraduationCap, Headphones, History, Home, ListChecks, Monitor, Moon, MoreHorizontal, PencilLine, Settings, Sigma, Sun, Timer, X } from 'lucide-react';
 import { useStore } from '../state/store';
 import type { Theme } from '../state/types';
 
@@ -20,7 +20,10 @@ export const primaryNav: NavEntry[] = [
   { to: '/simulator', label: 'סימולטור', description: 'בחינת דמה עם שעון אמיתי וציון', icon: Timer },
 ];
 
+const podcastNav: NavEntry = { to: '/podcast', label: 'פודקאסט', description: 'יעל ועומר עוברים על כל נושא, עם כתוביות', icon: Headphones };
+
 export const secondaryNav: NavEntry[] = [
+  podcastNav,
   { to: '/sets', label: 'סטים לתרגול', description: 'סטים מדורגים מהקל לבגרות, עם בדיקה והקראה', icon: ListChecks },
   { to: '/planner', label: 'מתכנן למידה', description: 'תוכנית שבועית לפי הזמן שיש לך', icon: CalendarDays },
   { to: '/mistakes', label: 'יומן טעויות', description: 'מה השתבש, איך נכון, ומתי לחזור', icon: AlertTriangle },
@@ -31,9 +34,9 @@ export const secondaryNav: NavEntry[] = [
 
 const sidebarGroups: Array<{ label?: string; items: NavEntry[] }> = [
   { items: [primaryNav[0]] },
-  { label: 'למידה', items: primaryNav.slice(1) },
-  { label: 'כלים', items: secondaryNav.slice(0, 5) },
-  { items: [secondaryNav[5]] },
+  { label: 'למידה', items: [...primaryNav.slice(1), podcastNav] },
+  { label: 'כלים', items: secondaryNav.slice(1, 6) },
+  { items: [secondaryNav[6]] },
 ];
 
 const themeOptions: Array<{ value: Theme; icon: typeof Sun; label: string }> = [

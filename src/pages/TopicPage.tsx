@@ -1,6 +1,6 @@
 import { lazy, Suspense, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { AlertTriangle, BookOpen, ChevronLeft, ClipboardCheck, FunctionSquare, GraduationCap, Lightbulb, PencilLine, Sigma, Target } from 'lucide-react';
+import { AlertTriangle, BookOpen, ChevronLeft, ClipboardCheck, FunctionSquare, GraduationCap, Headphones, Lightbulb, PencilLine, Sigma, Target } from 'lucide-react';
 import { chapters as lessonChapters, isInScope, lessonCatalog, lessonPath } from '@/data/lessons/catalog';
 import { problemsFor } from '@/data/problems';
 import { summaryFor } from '@/data/summaries';
@@ -10,6 +10,7 @@ import { LessonStatusBadge, PriorityBadge } from '../components/StatusBadge';
 import { SyllabusTopic } from '../components/SyllabusTopic';
 import { Accordion, Badge, Button, Card, EmptyState, Notice, PageHeader, ProgressRing, SectionTitle } from '../components/ui';
 import { useActiveSection } from '../components/useActiveSection';
+import { podcastAnchorForTopic } from '../podcast/catalog';
 import { topicProgress } from '../lib/progress';
 import { isQuestionnaireCode, questionnaireByCode, slotsForTopic, topicOf } from '../lib/questionnaires';
 import { useStore } from '../state/store';
@@ -68,6 +69,8 @@ export function TopicPage() {
   const progress = topicProgress(topic, state.ratings);
   const inScope = topic.subtopics.filter((subtopic) => subtopic.status === 'in');
 
+  const podcastAnchor = podcastAnchorForTopic(topic.id);
+
   const toc = (
     <nav className="toc" aria-label="תוכן העמוד">
       {anchors.map((anchor) => (
@@ -115,7 +118,14 @@ export function TopicPage() {
             </div>
           ) : undefined
         }
-      />
+      >
+        {podcastAnchor && (
+          <Link to={`/podcast#${podcastAnchor}`} className="mt-3 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-primary hover:underline">
+            <Headphones size={16} aria-hidden="true" />
+            להאזנה לפרקים בנושא
+          </Link>
+        )}
+      </PageHeader>
 
       <nav className="no-print mb-5 flex gap-2 overflow-x-auto pb-1 lg:hidden" aria-label="תוכן העמוד">
         {anchors.map((anchor) => (
