@@ -13,8 +13,8 @@
 
 צריך:
     pip3 install google-genai
-    מפתח API של Gemini במשתנה הסביבה GEMINI_API_KEY (ראו הוראות.md)
-    ffmpeg (לא חובה): אם הוא מותקן הקבצים יישמרו כ-MP3, אחרת כ-WAV.
+    מפתח API של Gemini במשתנה הסביבה GEMINI_API_KEY, או בקובץ .env בתיקייה הזאת (ראו הוראות.md)
+    ffmpeg (לא חובה): אם הוא מותקן הקבצים יישמרו כ-MP3. ב-Mac בלי ffmpeg הם יישמרו כ-M4A, ואחרת כ-WAV.
 """
 
 import argparse
@@ -76,6 +76,12 @@ LETTERS = {"א": "a", "ב": "b", "ג": "c", "ד": "d", "ה": "e", "ו": "f", "ז
 SPEAKERS = {"יעל": "Yael", "עומר": "Omer"}
 SPEAKER_HEBREW = {english: hebrew for hebrew, english in SPEAKERS.items()}
 
+# תתי-פרקים שלא נוצרים ולא מופיעים באתר, כי הנושא שלהם מחוץ למיקוד.
+# כדי להחזיר פרק (למשל אם ייכנס למיקוד 2027), מוחקים אותו מהרשימה ומריצים שוב.
+SKIP = {
+    "1א": "סדרה חשבונית הוצאה במיקוד 2026",
+}
+
 # ---------------------------------------------------------------------------
 
 if hasattr(sys.stdout, "reconfigure"):
@@ -133,7 +139,22 @@ def chunk_turns(turns, limit=CHUNK_CHARS):
     return chunks
 
 
+def load_env_file(path: Path):
+    """קורא KEY=VALUE מתוך קובץ .env (שלא עולה ל-git), בלי לדרוס משתנים שכבר מוגדרים."""
+    if not path.exists():
+        return
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        name, value = line.split("=", 1)
+        name, value = name.strip(), value.strip().strip("'\"")
+        if name and name not in os.environ:
+            os.environ[name] = value
+
+
 def make_client():
+    load_env_file(HERE / ".env")
     key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
     if not key:
         sys.exit("לא נמצא מפתח API. הגדירו את המשתנה GEMINI_API_KEY (ראו הוראות.md).")
@@ -212,19 +233,29 @@ def write_wav(path: Path, pcm: bytes):
 
 
 def finalize_audio(wav_path: Path) -> Path:
-    """ממיר ל-MP3 אם ffmpeg מותקן. אחרת משאיר WAV."""
+    """ממיר ל-MP3 אם ffmpeg מותקן, אחרת ל-M4A (AAC) עם afconvert שמגיע עם Mac. בלי שניהם נשאר WAV."""
     ffmpeg = shutil.which("ffmpeg")
-    if not ffmpeg:
-        return wav_path
-    mp3_path = wav_path.with_suffix(".mp3")
-    result = subprocess.run(
-        [ffmpeg, "-y", "-loglevel", "error", "-i", str(wav_path), "-codec:a", "libmp3lame", "-b:a", "96k", str(mp3_path)],
-        capture_output=True,
-    )
-    if result.returncode == 0:
-        wav_path.unlink()
-        return mp3_path
-    print("  ההמרה ל-MP3 נכשלה, נשמר WAV.")
+    if ffmpeg:
+        mp3_path = wav_path.with_suffix(".mp3")
+        result = subprocess.run(
+            [ffmpeg, "-y", "-loglevel", "error", "-i", str(wav_path), "-codec:a", "libmp3lame", "-b:a", "96k", str(mp3_path)],
+            capture_output=True,
+        )
+        if result.returncode == 0:
+            wav_path.unlink()
+            return mp3_path
+        print("  ההמרה ל-MP3 נכשלה, מנסים AAC.")
+    afconvert = shutil.which("afconvert")
+    if afconvert:
+        m4a_path = wav_path.with_suffix(".m4a")
+        result = subprocess.run(
+            [afconvert, "-f", "m4af", "-d", "aac", "-b", "96000", "-q", "127", "-s", "3", str(wav_path), str(m4a_path)],
+            capture_output=True,
+        )
+        if result.returncode == 0:
+            wav_path.unlink()
+            return m4a_path
+        print("  ההמרה ל-AAC נכשלה, נשמר WAV.")
     return wav_path
 
 
@@ -249,7 +280,7 @@ def build_episode(client, model_state, episode, out_dir: Path, previous=None, fo
     """יוצר (או משלים) פרק אחד ומחזיר את הרשומה שלו לרשימת הפרקים."""
     slug = episode["slug"]
     captions_path = out_dir / f"{slug}.captions.json"
-    existing = [p for p in (out_dir / f"{slug}.mp3", out_dir / f"{slug}.wav") if p.exists()]
+    existing = [p for p in (out_dir / f"{slug}.mp3", out_dir / f"{slug}.m4a", out_dir / f"{slug}.wav") if p.exists()]
     duration = (previous or {}).get("duration")
 
     if existing and not (force and not captions_only):
@@ -346,8 +377,14 @@ def main():
     if args.list:
         for e in episodes:
             chars = sum(len(t) for _, t in e["turns"])
-            print(f"{e['id']:>3}  {e['slug']:<7} ~{chars / 14 / 60:.0f} דק'  {e['title']}")
+            note = f"  (מדלגים: {SKIP[e['id']]})" if e["id"] in SKIP else ""
+            print(f"{e['id']:>3}  {e['slug']:<7} ~{chars / 14 / 60:.0f} דק'  {e['title']}{note}")
         return
+
+    for e in episodes:
+        if e["id"] in SKIP:
+            print(f"{e['id']}: מדלגים ({SKIP[e['id']]}).")
+    episodes = [e for e in episodes if e["id"] not in SKIP]
 
     if args.only:
         wanted = set()
@@ -365,7 +402,7 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
     client = None if args.captions else make_client()
     model_state = {"index": 0}
-    index = load_index(out_dir)
+    index = {k: v for k, v in load_index(out_dir).items() if k not in SKIP}
 
     for episode in episodes:
         entry = build_episode(

@@ -15,10 +15,10 @@ import bisect
 import json
 import re
 import shutil
+import struct
 import subprocess
 import tempfile
 import warnings
-import wave
 from pathlib import Path
 
 SAMPLE_RATE = 24000
@@ -233,10 +233,29 @@ def write_captions(path, captions):
 # ---------------------------------------------------------------------------
 
 def read_wav_pcm(path):
-    with wave.open(str(path)) as w:
-        if w.getnchannels() == 1 and w.getsampwidth() == 2 and w.getframerate() == SAMPLE_RATE:
-            return w.readframes(w.getnframes())
-    return None
+    """
+    קורא WAV של 24kHz, מונו, 16 ביט. הקריאה ידנית (ולא עם המודול wave), כי afconvert כותב
+    לפעמים כותרת מסוג "extensible" שהמודול לא מכיר בגרסאות ישנות של Python.
+    """
+    data = Path(path).read_bytes()
+    if data[:4] != b"RIFF" or data[8:12] != b"WAVE":
+        return None
+    pos, fmt, pcm = 12, None, None
+    while pos + 8 <= len(data):
+        chunk_id = data[pos:pos + 4]
+        size = struct.unpack("<I", data[pos + 4:pos + 8])[0]
+        body = data[pos + 8:pos + 8 + size]
+        if chunk_id == b"fmt ":
+            fmt = struct.unpack("<HHIIHH", body[:16])
+        elif chunk_id == b"data":
+            pcm = body
+        pos += 8 + size + (size & 1)
+    if fmt is None or pcm is None:
+        return None
+    tag, channels, rate, _, _, bits = fmt
+    if tag not in (1, 0xFFFE) or channels != 1 or rate != SAMPLE_RATE or bits != 16:
+        return None
+    return pcm
 
 
 def decode_to_pcm(path):
