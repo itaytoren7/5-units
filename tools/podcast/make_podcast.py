@@ -192,7 +192,7 @@ def synthesize(key, chunk) -> bytes:
     attempt = 0
     while True:
         try:
-            with urllib.request.urlopen(request, timeout=900) as response:
+            with urllib.request.urlopen(request, timeout=420) as response:
                 payload = json.load(response)
             for step in payload.get("steps", []):
                 if step.get("type") != "model_output":

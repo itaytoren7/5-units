@@ -14,5 +14,157 @@
     "file": "ep-1c.m4a",
     "captions": "ep-1c.captions.json",
     "duration": 450.8
+  },
+  {
+    "id": "1ד",
+    "title": "אינדוקציה מתמטית",
+    "topic": "פרק 1: סדרות ואינדוקציה",
+    "file": "ep-1d.m4a",
+    "captions": "ep-1d.captions.json",
+    "duration": 466.2
+  },
+  {
+    "id": "2א",
+    "title": "יסודות ההסתברות ועץ הסתברות",
+    "topic": "פרק 2: הסתברות",
+    "file": "ep-2a.m4a",
+    "captions": "ep-2a.captions.json",
+    "duration": 390.4
+  },
+  {
+    "id": "2ב",
+    "title": "הסתברות מותנית וטבלה דו-ממדית",
+    "topic": "פרק 2: הסתברות",
+    "file": "ep-2b.m4a",
+    "captions": "ep-2b.captions.json",
+    "duration": 418.0
+  },
+  {
+    "id": "2ג",
+    "title": "נוסחת ברנולי",
+    "topic": "פרק 2: הסתברות",
+    "file": "ep-2c.m4a",
+    "captions": "ep-2c.captions.json",
+    "duration": 401.6
+  },
+  {
+    "id": "3א",
+    "title": "משולשים, חפיפה ודמיון",
+    "topic": "פרק 3: גאומטריה",
+    "file": "ep-3a.m4a",
+    "captions": "ep-3a.captions.json",
+    "duration": 417.2
+  },
+  {
+    "id": "3ב",
+    "title": "המעגל – זוויות, מיתרים, משיקים ומרובעים",
+    "topic": "פרק 3: גאומטריה",
+    "file": "ep-3b.m4a",
+    "captions": "ep-3b.captions.json",
+    "duration": 341.1
+  },
+  {
+    "id": "3ג",
+    "title": "יחסים במעגל והמשולש הישר-זווית",
+    "topic": "פרק 3: גאומטריה",
+    "file": "ep-3c.m4a",
+    "captions": "ep-3c.captions.json",
+    "duration": 380.8
+  },
+  {
+    "id": "3ד",
+    "title": "טריגונומטריה במישור",
+    "topic": "פרק 3: גאומטריה",
+    "file": "ep-3d.m4a",
+    "captions": "ep-3d.captions.json",
+    "duration": 384.5
+  },
+  {
+    "id": "4א",
+    "title": "יסודות המרחב – ישרים, מישורים וזוויות",
+    "topic": "פרק 4: טריגונומטריה במרחב",
+    "file": "ep-4a.m4a",
+    "captions": "ep-4a.captions.json",
+    "duration": 374.6
+  },
+  {
+    "id": "4ב",
+    "title": "תיבה, קובייה ומנסרה",
+    "topic": "פרק 4: טריגונומטריה במרחב",
+    "file": "ep-4b.m4a",
+    "captions": "ep-4b.captions.json",
+    "duration": 385.4
+  },
+  {
+    "id": "5א",
+    "title": "הצגה אלגברית ופעולות",
+    "topic": "פרק 5: מספרים מרוכבים",
+    "file": "ep-5a.m4a",
+    "captions": "ep-5a.captions.json",
+    "duration": 340.8
+  },
+  {
+    "id": "5ב",
+    "title": "מישור גאוס, הצגה קוטבית ומשפט דה-מואבר",
+    "topic": "פרק 5: מספרים מרוכבים",
+    "file": "ep-5b.m4a",
+    "captions": "ep-5b.captions.json",
+    "duration": 343.9
+  },
+  {
+    "id": "5ג",
+    "title": "שורשים ומקומות גאומטריים",
+    "topic": "פרק 5: מספרים מרוכבים",
+    "file": "ep-5c.m4a",
+    "captions": "ep-5c.captions.json",
+    "duration": 407.5
+  },
+  {
+    "id": "6א",
+    "title": "נגזרות – כללי גזירה ומשיקים",
+    "topic": "פרק 6: חשבון דיפרנציאלי ואינטגרלי",
+    "file": "ep-6a.m4a",
+    "captions": "ep-6a.captions.json",
+    "duration": 342.6
+  },
+  {
+    "id": "6ב",
+    "title": "חקירת פונקציות – פולינומים, רציונליות ושורש",
+    "topic": "פרק 6: חשבון דיפרנציאלי ואינטגרלי",
+    "file": "ep-6b.m4a",
+    "captions": "ep-6b.captions.json",
+    "duration": 481.2
+  },
+  {
+    "id": "6ג",
+    "title": "פונקציות טריגונומטריות",
+    "topic": "פרק 6: חשבון דיפרנציאלי ואינטגרלי",
+    "file": "ep-6c.m4a",
+    "captions": "ep-6c.captions.json",
+    "duration": 328.2
+  },
+  {
+    "id": "6ד",
+    "title": "פונקציות מעריכיות ולוגריתמיות",
+    "topic": "פרק 6: חשבון דיפרנציאלי ואינטגרלי",
+    "file": "ep-6d.m4a",
+    "captions": "ep-6d.captions.json",
+    "duration": 334.1
+  },
+  {
+    "id": "6ה",
+    "title": "בעיות קיצון",
+    "topic": "פרק 6: חשבון דיפרנציאלי ואינטגרלי",
+    "file": "ep-6e.m4a",
+    "captions": "ep-6e.captions.json",
+    "duration": 342.9
+  },
+  {
+    "id": "6ו",
+    "title": "אינטגרלים – פונקציה קדומה, שטחים ונפחי סיבוב",
+    "topic": "פרק 6: חשבון דיפרנציאלי ואינטגרלי",
+    "file": "ep-6f.m4a",
+    "captions": "ep-6f.captions.json",
+    "duration": 451.4
   }
 ]
