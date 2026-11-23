@@ -72,6 +72,8 @@ export interface LessonMeta {
   kind: 'core' | 'review';
   /** Not a section of the book, added because the exam needs it. */
   extra?: boolean;
+  /** A practice set (src/data/sets) on the same subject, offered while the lesson has no exercises of its own. */
+  setId?: string;
 }
 
 /** What content authors write for each in-scope lesson. */

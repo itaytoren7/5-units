@@ -14,6 +14,7 @@ import { questionnaireByCode } from '../lib/questionnaires';
 import { useStore } from '../state/store';
 import { NotFound } from './NotFound';
 import { examNumber } from '@/lib/questionnaires';
+import { setById } from '@/data/sets';
 
 type Filter = 'all' | 'todo' | 'wrong';
 
@@ -55,6 +56,7 @@ export function LessonPage() {
   if (!lesson || !chapter || lesson.chapterId !== chapter.id) return <NotFound />;
 
   const questionnaire = questionnaireByCode(lesson.questionnaire)!;
+  const practiceSet = setById(lesson.setId);
   const siblings = lessonsOfChapter(chapter.id);
   const position = siblings.findIndex((entry) => entry.id === lesson.id);
   const previous = siblings[position - 1];
@@ -155,6 +157,11 @@ export function LessonPage() {
                   <Button size="sm" variant="ghost" to={`/topic/${lesson.questionnaire}/${lesson.topicId}`} icon={<BookOpen size={15} />}>
                     לסיכום הנושא
                   </Button>
+                  {practiceSet && (
+                    <Button size="sm" variant="soft" to={`/sets/${practiceSet.id}`}>
+                      סט לתרגול: {practiceSet.title}
+                    </Button>
+                  )}
                   {lesson.slots.map((slot) => (
                     <Button key={slot} size="sm" variant="ghost" to={`/practice?code=${lesson.questionnaire}&slot=${slot}`} icon={<PencilLine size={15} />}>
                       שאלות בגרות (שאלה {examNumber(lesson.questionnaire, slot)})
@@ -229,7 +236,9 @@ export function LessonPage() {
             </>
           ) : (
             <Card>
-              <EmptyState icon={<AlertTriangle size={22} />} title={lesson.status === 'pending' ? 'בבגרות 2027 · התרגילים בדרך' : 'לא בבגרות 2027'} description={lesson.status === 'pending' ? 'הנושא חזר לבחינה במיקוד של 2027. התרגילים לשיעור הזה עוד לא נכתבו, והם יתווספו בקרוב. בינתיים למדו אותו מהספר ומבחינות עבר.' : 'השיעור מוצג כדי שתדעו שהוא קיים בספר. אין בו תרגילים, כי הוא לא ייבחן במועדי 2027.'} />
+              <EmptyState icon={<AlertTriangle size={22} />} title={lesson.status === 'pending' ? (practiceSet ? 'בבגרות 2027 · מתרגלים בסט' : 'בבגרות 2027 · התרגילים בדרך') : 'לא בבגרות 2027'} description={lesson.status === 'pending' ? (practiceSet ? 'הנושא חזר לבחינה במיקוד של 2027. לשיעור הזה אין תרגילים משלו, אבל יש סט לתרגול בדיוק בנושא: 12 תרגילים מדורגים עם בדיקה אוטומטית ופתרונות.' : 'הנושא חזר לבחינה במיקוד של 2027. התרגילים לשיעור הזה עוד לא נכתבו, והם יתווספו בקרוב. בינתיים למדו אותו מהספר ומבחינות עבר.') : 'השיעור מוצג כדי שתדעו שהוא קיים בספר. אין בו תרגילים, כי הוא לא ייבחן במועדי 2027.'}
+                action={practiceSet ? <Button variant="primary" to={`/sets/${practiceSet.id}`}>לתרגול בסט: {practiceSet.title}</Button> : undefined}
+              />
             </Card>
           )}
 

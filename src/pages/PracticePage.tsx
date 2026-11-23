@@ -306,7 +306,11 @@ export function PracticePage() {
           <DifficultyBadge difficulty={problem.difficulty} />
           <Badge>~{problem.estimatedMinutes} דק׳</Badge>
           <Badge>{problem.sections.length} סעיפים</Badge>
+          {problem.format === 'short-questions' && <Badge tone="primary">עונים על 2 מתוך 4</Badge>}
         </div>
+        {problem.format === 'short-questions' && (
+          <p className="mt-3 text-sm text-muted">שאלה 1 בשאלון 571: ארבעה סעיפים קצרים, כל אחד מנושא אחר ולא תלוי באחרים. בבחינה עונים על שניים מהם. כאן כדאי לתרגל את כולם.</p>
+        )}
       </PageHeader>
 
       <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-8">

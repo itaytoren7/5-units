@@ -19,7 +19,10 @@ import { NotFound } from './NotFound';
 function randomProblemBySlot(code: QuestionnaireCode, slots: number[]): Record<string, string | null> {
   const result: Record<string, string | null> = {};
   for (const slot of slots) {
-    const pool = problemsFor(code, slot);
+    const all = problemsFor(code, slot);
+    // Question 1 of 571 is "short questions": use that format whenever the bank has it.
+    const short = all.filter((problem) => problem.format === 'short-questions');
+    const pool = short.length ? short : all;
     result[String(slot)] = pool.length ? pool[Math.floor(Math.random() * pool.length)].id : null;
   }
   return result;

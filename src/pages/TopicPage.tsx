@@ -1,6 +1,6 @@
 import { lazy, Suspense, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { AlertTriangle, BookOpen, ChevronLeft, ClipboardCheck, FunctionSquare, GraduationCap, Headphones, Lightbulb, PencilLine, Sigma, Target } from 'lucide-react';
+import { AlertTriangle, BookOpen, ChevronLeft, ClipboardCheck, FunctionSquare, GraduationCap, Headphones, Lightbulb, ListChecks, PencilLine, Sigma, Target } from 'lucide-react';
 import { chapters as lessonChapters, isInScope, lessonCatalog, lessonPath } from '@/data/lessons/catalog';
 import { problemsFor } from '@/data/problems';
 import { summaryFor } from '@/data/summaries';
@@ -15,6 +15,7 @@ import { topicProgress } from '../lib/progress';
 import { isQuestionnaireCode, questionnaireByCode, slotsForTopic, topicOf } from '../lib/questionnaires';
 import { useStore } from '../state/store';
 import { NotFound } from './NotFound';
+import { setsCatalog } from '@/data/sets';
 
 const FunctionExplorer = lazy(() => import('../tools/FunctionExplorer').then((module) => ({ default: module.FunctionExplorer })));
 const UnitCircle = lazy(() => import('../tools/UnitCircle').then((module) => ({ default: module.UnitCircle })));
@@ -49,6 +50,8 @@ export function TopicPage() {
   const tools = summary?.tools ?? [];
   const topicChapters = topic && isQuestionnaireCode(code) ? lessonChapters.filter((chapter) => chapter.questionnaire === code && chapter.topicIds.includes(topic.id)) : [];
 
+  const topicSets = topic && isQuestionnaireCode(code) ? setsCatalog.filter((entry) => entry.questionnaire === code && entry.topicId === topic.id && entry.status === 'done') : [];
+
   const anchors = useMemo<Anchor[]>(() => {
     const list: Anchor[] = [];
     if (summary) {
@@ -57,9 +60,10 @@ export function TopicPage() {
     if (topicChapters.length > 0) list.push({ id: 'lessons', label: 'שיעורים' });
     if (tools.length > 0) list.push({ id: 'tools', label: 'כלים' });
     list.push({ id: 'mastery', label: 'רמת שליטה' });
+    if (topicSets.length > 0) list.push({ id: 'sets', label: 'סטים לתרגול' });
     if (practice.length > 0) list.push({ id: 'practice', label: 'תרגול' });
     return list;
-  }, [summary, tools.length, practice.length, topicChapters.length]);
+  }, [summary, tools.length, practice.length, topicChapters.length, topicSets.length]);
   const anchorIds = useMemo(() => anchors.map((anchor) => anchor.id), [anchors]);
   const active = useActiveSection(anchorIds);
 
@@ -283,6 +287,21 @@ export function TopicPage() {
             <SectionTitle icon={<ClipboardCheck size={18} />} title="רמת השליטה שלי" description="הסימון מזין את ההתקדמות, את המתכנן ואת ״מה ללמוד עכשיו״" />
             <SyllabusTopic questionnaire={questionnaire} topic={topic} />
           </Card>
+
+          {topicSets.length > 0 && (
+            <div>
+              <div id="sets" className="scroll-mt-24" />
+              <SectionTitle icon={<ListChecks size={18} />} title="סטים לתרגול" description="12 תרגילים מדורגים בכל סט, מהקל לרמת בגרות, עם בדיקה אוטומטית ופתרון מלא" />
+              <div className="stagger grid gap-3 sm:grid-cols-2">
+                {topicSets.map((entry) => (
+                  <Link key={entry.id} to={`/sets/${entry.id}`} className="card card-hover flex flex-col gap-1.5 p-4">
+                    <span className="font-bold">{entry.title}</span>
+                    <span className="text-sm text-muted">{entry.summary}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div>
             <div id="practice" className="scroll-mt-24" />
