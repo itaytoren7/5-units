@@ -50,6 +50,8 @@ export interface Problem {
   source: ProblemSource;
   /** Optional inline SVG (viewBox-based, no fixed width/height) describing the figure for geometry problems. */
   figureSvg?: string;
+  /** 'short-questions' = question 1 of 571: four independent short sections from different topics, of which the student answers two. */
+  format?: 'short-questions';
   /** Where an 'open-source' problem comes from. */
   attribution?: SourceAttribution;
 }

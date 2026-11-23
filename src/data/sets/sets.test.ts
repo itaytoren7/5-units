@@ -5,9 +5,40 @@
 import katex from 'katex';
 import { derivative, evaluate } from 'mathjs';
 import { describe, expect, it } from 'vitest';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { questionnaires } from '../syllabus';
-import { setsCatalog } from './catalog';
-import { sets } from './index';
+import { Diagram } from '../../sets/Diagram';
+import type { CatalogEntry } from './catalog';
+import type { DiagramSpec, ExerciseSet } from './types';
+
+/**
+ * While a set is being written, check that one file on its own:
+ *   SET_FILE=my-set.ts npx vitest run src/data/sets/sets.test.ts
+ * Without SET_FILE the whole folder and the catalogue are checked.
+ */
+const onlyFile = process.env.SET_FILE;
+let sets: ExerciseSet[];
+let setsCatalog: CatalogEntry[] = [];
+if (onlyFile) {
+  const loaders = import.meta.glob<Record<string, unknown>>('./*.ts');
+  const load = loaders[`./${onlyFile}`];
+  if (!load) throw new Error(`SET_FILE: no file ${onlyFile} in src/data/sets`);
+  const module = await load();
+  sets = Object.values(module).filter((value): value is ExerciseSet => typeof value === 'object' && value !== null && Array.isArray((value as ExerciseSet).exercises));
+  if (sets.length === 0) throw new Error(`SET_FILE: ${onlyFile} exports no ExerciseSet`);
+} else {
+  ({ sets, setsCatalog } = await import('./index'));
+}
+
+function expectDiagramRenders(spec: DiagramSpec, where: string) {
+  let markup = '';
+  expect(() => {
+    markup = renderToStaticMarkup(createElement(Diagram, { spec }));
+  }, `${where}: the diagram must render`).not.toThrow();
+  expect(markup, `${where}: the diagram renders an svg`).toContain('<svg');
+  expect(markup, `${where}: the diagram has no NaN coordinates`).not.toContain('NaN');
+}
 
 /* ---- helpers available inside `verify` ---- */
 
@@ -70,7 +101,7 @@ function subtopicStatus(code: string, subtopicId: string) {
 }
 
 describe('exercise sets', () => {
-  it('have unique ids and are listed in the catalog as done', () => {
+  it.skipIf(Boolean(onlyFile))('have unique ids and are listed in the catalog as done', () => {
     const ids = sets.map((set) => set.id);
     expect(new Set(ids).size).toBe(ids.length);
     const exerciseIds = sets.flatMap((set) => set.exercises.map((exercise) => exercise.id));
@@ -107,6 +138,9 @@ describe('exercise sets', () => {
       if (exercise.level >= 2) expect(exercise.sections.length, `${exercise.id}: level ${exercise.level} has several sections`).toBeGreaterThanOrEqual(2);
       expectRenderable(exercise.intro, `${exercise.id}.intro`);
       expect(exercise.diagram.kind.length).toBeGreaterThan(0);
+      expectDiagramRenders(exercise.diagram, `${exercise.id}.diagram`);
+      if (exercise.solutionDiagram) expectDiagramRenders(exercise.solutionDiagram, `${exercise.id}.solutionDiagram`);
+      expect(exercise.id, `${exercise.id}: ids are unique inside the set`).toBe(set.exercises.find((other) => other.id === exercise.id)?.id);
       const labels = exercise.sections.map((section) => section.label);
       expect(labels).toEqual(['א', 'ב', 'ג', 'ד', 'ה', 'ו'].slice(0, labels.length));
       for (const section of exercise.sections) {
