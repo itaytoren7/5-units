@@ -21,6 +21,7 @@ import { BadgeGrid, CoachCard, StreakChip } from '../motivation/components';
 const DailyExercise = lazy(() => import('../components/DailyExercise').then((module) => ({ default: module.DailyExercise })));
 import { useMotivation } from '../motivation/store';
 import { useStore } from '../state/store';
+import { examNumber } from '@/lib/questionnaires';
 
 function greeting(now = new Date()): string {
   const hour = now.getHours();
@@ -80,7 +81,7 @@ function ExamCard({ questionnaire }: { questionnaire: Questionnaire }) {
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <Badge tone={questionnaire.code === '35581' ? 'primary' : 'green'}>שאלון {questionnaire.nickname}</Badge>
-          <h3 className="mt-2 text-2xl font-bold">שאלון {questionnaire.code}</h3>
+          <h3 className="mt-2 text-2xl font-bold">שאלון {questionnaire.displayCode}</h3>
           <p className="mt-1 text-sm text-muted">
             {questionnaire.weightPercent}% מהציון · {formatDuration(questionnaire.durationMinutes)}
             <br />
@@ -94,7 +95,7 @@ function ExamCard({ questionnaire }: { questionnaire: Questionnaire }) {
           const slotPercent = slotProgress(questionnaire, slot, state.ratings).percent;
           return (
             <div key={slot.number} className="flex items-center gap-3 text-sm">
-              <span className="w-16 shrink-0 font-semibold">שאלה {slot.number}</span>
+              <span className="w-16 shrink-0 font-semibold">שאלה {slot.examNumber ?? slot.number}</span>
               <ProgressBar percent={slotPercent} tone="yellow" size="sm" className="flex-1" label={slot.title} />
               <span className="w-10 text-end tabular-nums text-muted">{slotPercent}%</span>
             </div>
@@ -286,7 +287,7 @@ export function Dashboard() {
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block text-sm text-muted">
-                        שאלון {item.questionnaire.nickname} · שאלה {item.slot} · {item.topic.title}
+                        שאלון {item.questionnaire.nickname} · שאלה {examNumber(item.questionnaire.code, item.slot)} · {item.topic.title}
                       </span>
                       <span className="block text-base leading-snug">
                         <Markdown inline>{item.subtopic.title}</Markdown>

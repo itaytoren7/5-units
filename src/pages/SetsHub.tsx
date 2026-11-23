@@ -23,7 +23,7 @@ export function SetsHub() {
           const topicIds = [...new Set([...ofQuestionnaire.map((set) => set.topicIds[0]), ...planned.map((entry) => entry.topicId)])];
           return (
             <section key={questionnaire.code}>
-              <SectionTitle title={`שאלון ${questionnaire.nickname}`} description={`שאלון ${questionnaire.code}`} />
+              <SectionTitle title={`שאלון ${questionnaire.nickname}`} description={`שאלון ${questionnaire.displayCode}`} />
               <div className="flex flex-col gap-5">
                 {topicIds.map((topicId) => {
                   const topic = topicOf(questionnaireByCode(questionnaire.code)!, topicId);

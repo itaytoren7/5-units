@@ -10,7 +10,7 @@ import { Accordion, Badge, Button, Card, Notice, PageHeader, ProgressBar, Sectio
 import { formatClock } from '../lib/dates';
 import { formatDuration, formatPoints, formatScore } from '../lib/format';
 import { calculateExamScore, getQuestionValue } from '../lib/scoring';
-import { isQuestionnaireCode, questionnaireByCode } from '../lib/questionnaires';
+import { examNumber, isQuestionnaireCode, questionnaireByCode } from '../lib/questionnaires';
 import { useStore } from '../state/store';
 import type { ActiveExam } from '../state/types';
 import { NotFound } from './NotFound';
@@ -103,7 +103,7 @@ export function SimulatorPage() {
         <PageHeader
           eyebrow={<Link to="/simulator">סימולטור</Link>}
           title={`בחינת דמה · שאלון ${questionnaire.nickname}`}
-          description={`${formatDuration(questionnaire.durationMinutes)} · עונים על ${questionnaire.questionsToAnswer} מתוך ${questionnaire.totalQuestions} · ${formatPoints(questionnaire.pointsPerQuestion)} נק׳ לשאלה${questionnaire.code === '35581' ? ' · הציון מוגבל ל-100' : ''}`}
+          description={`${formatDuration(questionnaire.durationMinutes)} · עונים על ${questionnaire.questionsToAnswer} מתוך ${questionnaire.totalQuestions} · ${formatPoints(questionnaire.pointsPerQuestion)} נק׳ לשאלה`}
           actions={
             <Button variant="primary" size="lg" icon={<Play size={18} />} onClick={start}>
               התחלת סימולציה
@@ -116,7 +116,7 @@ export function SimulatorPage() {
             <ol className="flex flex-col gap-3">
               {[
                 'לכל שאלה בבחינה נשלף תרגיל אקראי מהמאגר. לשאלה בלי תרגיל במאגר, תרגלו מבחינת עבר.',
-                `כל השאלות גלויות. בוחרים בעצמכם על אילו ${questionnaire.questionsToAnswer} לענות. אין הגבלת פרקים.`,
+                `כל השאלות גלויות. בוחרים בעצמכם על אילו ${questionnaire.questionsToAnswer} לענות. ${questionnaire.choiceRule ?? 'אין הגבלת פרקים.'}`,
                 'השעון רץ גם אם סוגרים את הדף. התראה כשנותרו 30 ו-10 דקות.',
                 'בסוף בודקים מול הפתרון ומדרגים כל שאלה: מלא, חלקי או אפס. הציון נשמר בהיסטוריה.',
               ].map((step, index) => (
@@ -144,7 +144,7 @@ export function SimulatorPage() {
                 return (
                   <li key={slot.number} className="flex flex-col gap-2 rounded-xl bg-surface-2 px-3.5 py-3 sm:flex-row sm:items-center">
                     <span className="flex min-w-0 flex-1 items-center gap-2">
-                      <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg text-sm font-bold ${slot.priority === 'yellow' ? 'bg-yellow-soft text-yellow' : 'bg-blue-soft text-blue'}`}>{slot.number}</span>
+                      <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg text-sm font-bold ${slot.priority === 'yellow' ? 'bg-yellow-soft text-yellow' : 'bg-blue-soft text-blue'}`}>{slot.examNumber ?? slot.number}</span>
                       <span className="truncate text-sm">{slot.title}</span>
                     </span>
                     {pool.length ? (
@@ -152,7 +152,7 @@ export function SimulatorPage() {
                         value={selected ?? ''}
                         onChange={(event) => actions.setActiveExam({ questionnaire: code, phase: 'setup', chosenSlots: [], problemBySlot: { ...(exam?.problemBySlot ?? randomProblemBySlot(code, allSlots)), [String(slot.number)]: event.target.value || null }, startedAt: null, endsAt: null, grades: {}, alertsShown: [] })}
                         className="sm:max-w-[240px]"
-                        aria-label={`תרגיל לשאלה ${slot.number}`}
+                        aria-label={`תרגיל לשאלה ${slot.examNumber ?? slot.number}`}
                       >
                         <option value="">אקראי</option>
                         {pool.map((problem) => (
@@ -180,6 +180,8 @@ export function SimulatorPage() {
   };
 
   const tooMany = exam.chosenSlots.length > questionnaire.questionsToAnswer;
+  // The 2027 choice rules: at least one question from each listed group of chapters.
+  const missingGroup = exam.chosenSlots.length >= questionnaire.questionsToAnswer && (questionnaire.choiceGroups ?? []).some((group) => !group.some((slot) => exam.chosenSlots.includes(slot)));
   const lowTime = secondsLeft <= 600;
   const warnTime = secondsLeft <= 1800;
 
@@ -228,7 +230,7 @@ export function SimulatorPage() {
                 type="button"
                 className={`chip ${chosen ? 'chip-chosen' : ''}`}
                 aria-current={openSlot === slot.number ? 'true' : undefined}
-                aria-label={`שאלה ${slot.number}${chosen ? ', נבחרה' : ''}`}
+                aria-label={`שאלה ${slot.examNumber ?? slot.number}${chosen ? ', נבחרה' : ''}`}
                 title={slot.title}
                 onClick={() => {
                   setOpenSlot(slot.number);
@@ -237,15 +239,23 @@ export function SimulatorPage() {
               >
                 {chosen ? (
                   <span className="inline-flex items-center gap-1">
-                    <Check size={14} /> {slot.number}
+                    <Check size={14} /> {slot.examNumber ?? slot.number}
                   </span>
                 ) : (
-                  slot.number
+                  (slot.examNumber ?? slot.number)
                 )}
               </button>
             );
           })}
         </nav>
+
+        {missingGroup && questionnaire.choiceRule && (
+          <div className="mb-4">
+            <Notice tone="orange" icon={<AlertTriangle size={18} />}>
+              הבחירה שלך לא עומדת בכללי הבחינה: {questionnaire.choiceRule}
+            </Notice>
+          </div>
+        )}
 
         {tooMany && (
           <div className="mb-4">
@@ -265,7 +275,7 @@ export function SimulatorPage() {
               <Card key={slot.number} as="article" padding="none" className={`scroll-mt-40 ${chosen ? 'border-primary' : ''}`} style={{ borderColor: chosen ? 'var(--primary)' : undefined }}>
                 <div id={`slot-${slot.number}`} className="flex items-center gap-3 px-4 py-4 sm:px-6">
                   <button type="button" className="flex min-w-0 flex-1 items-center gap-3 text-start" aria-expanded={open} onClick={() => setOpenSlot(open ? null : slot.number)}>
-                    <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl text-base font-bold ${slot.priority === 'yellow' ? 'bg-yellow-soft text-yellow' : 'bg-blue-soft text-blue'}`}>{slot.number}</span>
+                    <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl text-base font-bold ${slot.priority === 'yellow' ? 'bg-yellow-soft text-yellow' : 'bg-blue-soft text-blue'}`}>{slot.examNumber ?? slot.number}</span>
                     <span className="min-w-0 flex-1">
                       <span className="block text-sm text-muted">
                         פרק {slot.part} · <PriorityBadge priority={slot.priority} short />
@@ -293,7 +303,7 @@ export function SimulatorPage() {
                         ))}
                       </div>
                     ) : (
-                      <p className="text-base text-muted">אין במאגר תרגיל לשאלה הזו. פתרו את שאלה {slot.number} מבחינת עבר אמיתית ודרגו את עצמכם בסוף.</p>
+                      <p className="text-base text-muted">אין במאגר תרגיל לשאלה הזו. פתרו את שאלה {slot.examNumber ?? slot.number} מבחינת עבר אמיתית ודרגו את עצמכם בסוף.</p>
                     )}
                   </div>
                 )}
@@ -327,8 +337,8 @@ export function SimulatorPage() {
         {counted.length > 0 && (
           <nav className="mt-5 flex flex-wrap justify-center gap-2" aria-label="מעבר בין שאלות">
             {counted.map((slotNumber) => (
-              <button key={slotNumber} type="button" className={`chip ${chipTone(exam.grades[String(slotNumber)])}`} aria-label={`שאלה ${slotNumber}`} onClick={() => scrollToSlot(slotNumber)}>
-                {slotNumber}
+              <button key={slotNumber} type="button" className={`chip ${chipTone(exam.grades[String(slotNumber)])}`} aria-label={`שאלה ${examNumber(code, slotNumber)}`} onClick={() => scrollToSlot(slotNumber)}>
+                {examNumber(code, slotNumber)}
               </button>
             ))}
           </nav>
@@ -355,7 +365,7 @@ export function SimulatorPage() {
           return (
             <Card key={slotNumber} as="article" className="scroll-mt-6">
               <div id={`slot-${slotNumber}`} className="mb-4 flex flex-wrap items-center gap-3">
-                <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl text-base font-bold ${slot.priority === 'yellow' ? 'bg-yellow-soft text-yellow' : 'bg-blue-soft text-blue'}`}>{slotNumber}</span>
+                <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl text-base font-bold ${slot.priority === 'yellow' ? 'bg-yellow-soft text-yellow' : 'bg-blue-soft text-blue'}`}>{slot.examNumber ?? slotNumber}</span>
                 <div className="min-w-0 flex-1">
                   <div className="text-lg font-bold leading-snug">{problem?.title ?? slot.title}</div>
                   <div className="text-sm text-muted">

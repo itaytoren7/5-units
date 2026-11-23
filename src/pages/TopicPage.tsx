@@ -96,7 +96,7 @@ export function TopicPage() {
               מופיע בשאלות:
               {slots.map((slot) => (
                 <span key={slot.number} className="inline-flex items-center gap-1">
-                  <Badge tone="primary">שאלה {slot.number}</Badge>
+                  <Badge tone="primary">שאלה {slot.examNumber ?? slot.number}</Badge>
                   <PriorityBadge priority={slot.priority} short />
                 </span>
               ))}
@@ -138,7 +138,7 @@ export function TopicPage() {
       {inScope.length === 0 && (
         <div className="mb-5">
           <Notice tone="red" icon={<AlertTriangle size={18} />}>
-            כל תתי-הנושאים כאן הוצאו מהבחינה לפי המיקוד. אין צורך ללמוד אותם לקיץ 2026.
+            כל תתי-הנושאים כאן הוצאו מהבחינה לפי המיקוד. אין צורך ללמוד אותם למועדי 2027.
           </Notice>
         </div>
       )}

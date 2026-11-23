@@ -5,6 +5,7 @@ import { Badge, Notice, PageHeader, ProgressRing } from '../components/ui';
 import { hasLearnedFilter } from '../lib/learned';
 import { combinedProgress } from '../lib/lessonProgress';
 import { useStore } from '../state/store';
+import { examNumber } from '@/lib/questionnaires';
 
 export function LearnHub() {
   const { state } = useStore();
@@ -36,7 +37,7 @@ export function LearnHub() {
                   <div className="flex flex-wrap gap-1.5">
                     {chapter.slots.map((slot) => (
                       <Badge key={slot} tone="primary" size="sm">
-                        שאלה {slot}
+                        שאלה {examNumber(chapter.questionnaire, slot)}
                       </Badge>
                     ))}
                   </div>

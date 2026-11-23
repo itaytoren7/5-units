@@ -51,6 +51,7 @@ export const chapterInfo: Record<number, { anchor: string; title: string }> = {
 /** Syllabus topic id → podcast chapter anchor. Topics without episodes are simply absent. */
 export const podcastAnchorByTopic: Record<string, string> = {
   sequences: 'sequences',
+  induction: 'sequences',
   probability: 'probability',
   'euclidean-geometry': 'geometry',
   trigonometry: 'geometry',
@@ -60,6 +61,13 @@ export const podcastAnchorByTopic: Record<string, string> = {
   'integral-calculus': 'calculus',
   'differential-integral': 'calculus',
   'exponential-logarithms': 'calculus',
+};
+
+/** Parts of an episode that the 2027 מיקוד leaves out of the exam (keyed by the Hebrew episode label). */
+export const episodeNotes: Record<string, string> = {
+  '1ד': 'בעיות התחלקות לא בבחינה',
+  '3ב': 'מרובע חוסם מעגל לא בבחינה',
+  '6ו': 'נפח גוף סיבוב לא בבחינה',
 };
 
 export function podcastAnchorForTopic(topicId: string): string | undefined {

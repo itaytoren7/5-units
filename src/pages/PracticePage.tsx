@@ -18,6 +18,7 @@ import { questionnaireByCode, slotOf, topicOf } from '../lib/questionnaires';
 import { useStore } from '../state/store';
 import type { SectionResult } from '../state/types';
 import { NotFound } from './NotFound';
+import { examNumber } from '@/lib/questionnaires';
 
 const resultLabels: Record<SectionResult, string> = { correct: 'צדקתי', partial: 'חלקית', wrong: 'טעיתי' };
 const resultTone: Record<SectionResult, 'green' | 'orange' | 'red'> = { correct: 'green', partial: 'orange', wrong: 'red' };
@@ -285,7 +286,7 @@ export function PracticePage() {
         eyebrow={
           <span className="flex flex-wrap items-center gap-1.5">
             <Link to={`/practice?code=${problem.questionnaire}&slot=${problem.slot}`} className="hover:underline">
-              שאלון {questionnaire.nickname} · שאלה {problem.slot}
+              שאלון {questionnaire.nickname} · שאלה {examNumber(problem.questionnaire, problem.slot)}
             </Link>
             {topic && (
               <>

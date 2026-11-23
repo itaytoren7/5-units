@@ -5,7 +5,8 @@ import type { QuestionnaireCode, SourceAttribution } from '../problems/types';
  * 'partial' = only part of the book section is in the 2026 exam (statusNote says which part).
  * Lessons whose status is 'out-original' / 'out-2026' are listed without exercises (they may return in a later מיקוד).
  */
-export type LessonStatus = 'in' | 'partial' | 'out-original' | 'out-2026';
+/** 'pending' = back in the exam (2027 מיקוד) but the exercises are not written yet. */
+export type LessonStatus = 'in' | 'partial' | 'pending' | 'out-original' | 'out-2026';
 
 export type ChapterId = 'euclidean-geometry' | 'analytic-geometry' | 'trigonometry' | 'calculus' | 'sequences' | 'probability' | 'word-problems';
 

@@ -13,6 +13,7 @@ import { exerciseResult, lessonProgress } from '../lib/lessonProgress';
 import { questionnaireByCode } from '../lib/questionnaires';
 import { useStore } from '../state/store';
 import { NotFound } from './NotFound';
+import { examNumber } from '@/lib/questionnaires';
 
 type Filter = 'all' | 'todo' | 'wrong';
 
@@ -111,7 +112,7 @@ export function LessonPage() {
           <LessonStatusBadge status={lesson.status} />
           {lesson.slots.map((slot) => (
             <Badge key={slot} tone="primary">
-              שאלון {questionnaire.nickname} · שאלה {slot}
+              שאלון {questionnaire.nickname} · שאלה {examNumber(lesson.questionnaire, slot)}
             </Badge>
           ))}
           {scope && (
@@ -156,7 +157,7 @@ export function LessonPage() {
                   </Button>
                   {lesson.slots.map((slot) => (
                     <Button key={slot} size="sm" variant="ghost" to={`/practice?code=${lesson.questionnaire}&slot=${slot}`} icon={<PencilLine size={15} />}>
-                      שאלות בגרות (שאלה {slot})
+                      שאלות בגרות (שאלה {examNumber(lesson.questionnaire, slot)})
                     </Button>
                   ))}
                 </div>
@@ -228,7 +229,7 @@ export function LessonPage() {
             </>
           ) : (
             <Card>
-              <EmptyState icon={<AlertTriangle size={22} />} title="לא בבגרות 2026" description="השיעור מוצג כדי שתדעו שהוא קיים בספר. אין בו תרגילים, כי הוא לא ייבחן בקיץ 2026. אם יחזור במיקוד של שנה הבאה, נוסיף תרגילים." />
+              <EmptyState icon={<AlertTriangle size={22} />} title={lesson.status === 'pending' ? 'בבגרות 2027 · התרגילים בדרך' : 'לא בבגרות 2027'} description={lesson.status === 'pending' ? 'הנושא חזר לבחינה במיקוד של 2027. התרגילים לשיעור הזה עוד לא נכתבו, והם יתווספו בקרוב. בינתיים למדו אותו מהספר ומבחינות עבר.' : 'השיעור מוצג כדי שתדעו שהוא קיים בספר. אין בו תרגילים, כי הוא לא ייבחן במועדי 2027.'} />
             </Card>
           )}
 

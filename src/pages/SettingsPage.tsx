@@ -9,6 +9,7 @@ import { STORAGE_KEY } from '../state/defaults';
 import { exportState, parseImportedState } from '../state/storage';
 import { importSetsFromBackup, loadSets } from '../sets/storage';
 import { useStore } from '../state/store';
+import { examSessions } from '@/data/syllabus';
 
 export function SettingsPage() {
   const { state, actions, notify } = useStore();
@@ -56,7 +57,7 @@ export function SettingsPage() {
               const date = state.examDates[questionnaire.code] ?? '';
               const days = date ? daysUntil(date) : null;
               return (
-                <Field key={questionnaire.code} label={`שאלון ${questionnaire.nickname} (${questionnaire.code})`} hint={days === null ? 'לא הוגדר תאריך' : days >= 0 ? `${formatDate(date)} · עוד ${days} ימים` : 'התאריך עבר'}>
+                <Field key={questionnaire.code} label={`שאלון ${questionnaire.nickname} (${questionnaire.displayCode})`} hint={days === null ? 'לא הוגדר תאריך' : days >= 0 ? `${formatDate(date)} · עוד ${days} ימים` : 'התאריך עבר'}>
                   <div className="flex gap-2">
                     <input type="date" value={date} onChange={(event) => actions.setExamDate(questionnaire.code, event.target.value)} className="min-w-0 flex-1" />
                     {date && <Button variant="ghost" aria-label="נקה תאריך" onClick={() => actions.setExamDate(questionnaire.code, '')} icon={<RotateCcw size={18} />} />}
@@ -64,6 +65,18 @@ export function SettingsPage() {
                 </Field>
               );
             })}
+            <div>
+              <div className="mb-2 text-sm font-semibold text-muted">מילוי מהיר לפי לוח המועדים של 2027</div>
+              <div className="flex flex-wrap gap-2">
+                {examSessions.map((session) => (
+                  <Button key={session.id} size="sm" variant="soft" onClick={() => Object.entries(session.dates).forEach(([code, date]) => actions.setExamDate(code, date))}>
+                    {session.label}
+                    {session.note ? ` (${session.note})` : ''}
+                  </Button>
+                ))}
+              </div>
+              <p className="mt-2 text-sm text-muted">בחורף: שאלון 572 ב-11.1.2027 ושאלון 571 ב-12.1.2027. מועדי הקיץ הם טיוטה של משרד החינוך ועשויים להשתנות.</p>
+            </div>
           </div>
         </Card>
 
@@ -76,7 +89,7 @@ export function SettingsPage() {
               onChange={actions.setFocusMode}
               fill
               options={[
-                { value: 'focus-2026', label: 'מיקוד 2026' },
+                { value: 'focus-2026', label: 'מיקוד 2027' },
                 { value: 'full', label: 'סילבוס מלא' },
               ]}
             />
@@ -152,7 +165,7 @@ export function SettingsPage() {
         <Card className="lg:col-span-2">
           <SectionTitle icon={<Info size={18} />} title="על האפליקציה" />
           <ul className="flex flex-col gap-1.5 text-base text-muted">
-            <li>מרכז למידה אישי לבגרות במתמטיקה 5 יח״ל: שאלונים 35581 ו-35582, לפי המיקוד לקיץ 2026.</li>
+            <li>מרכז למידה אישי לבגרות במתמטיקה 5 יח״ל: שאלונים 35571 ו-35572, לפי המיקוד לחורף ולקיץ 2027.</li>
             <li>
               הנתונים נשמרים ב-localStorage תחת המפתח <code className="rounded bg-surface-2 px-1" dir="ltr">{STORAGE_KEY}</code>.
             </li>

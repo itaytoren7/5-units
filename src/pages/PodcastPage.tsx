@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { Captions as CaptionsIcon, CaptionsOff, Check, Headphones, Pause, Play, RotateCcw, RotateCw } from 'lucide-react';
 import { Button, Card, EmptyState, Notice, PageHeader, Segmented } from '../components/ui';
 import { CaptionsView } from '../podcast/CaptionsView';
-import { episodeAssetUrl, episodesIndexUrl, formatClock, formatMinutes, formatTotal, groupEpisodes, type Episode, type EpisodeGroup } from '../podcast/catalog';
+import { episodeAssetUrl, episodeNotes, episodesIndexUrl, formatClock, formatMinutes, formatTotal, groupEpisodes, type Episode, type EpisodeGroup } from '../podcast/catalog';
 import { SKIP_SECONDS, usePlayer, type Player } from '../podcast/player';
 import { PLAYBACK_RATES, setCaptionsEnabled, setPlaybackRate, usePodcastState, type EpisodeProgress, type PlaybackRate } from '../podcast/storage';
 import '../podcast/podcast.css';
@@ -76,6 +76,7 @@ function EpisodeRow({
             ) : remaining && !isCurrent ? (
               <span>נשארו {formatMinutes(remaining)}</span>
             ) : null}
+            {episodeNotes[episode.label] && <span className="text-orange">{episodeNotes[episode.label]}</span>}
           </span>
         </button>
         <span className="pod-id" aria-label={`תת-פרק ${episode.label}`}>

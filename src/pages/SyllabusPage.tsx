@@ -21,10 +21,10 @@ function SlotCard({ questionnaire, slot, showPartNote }: { questionnaire: Questi
   return (
     <Card as="article" padding="none">
       <button type="button" className="flex w-full items-center gap-4 px-5 py-4 text-start sm:px-6" aria-expanded={open} onClick={() => setOpen(!open)}>
-        <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-lg font-bold ${slot.priority === 'yellow' ? 'bg-yellow-soft text-yellow' : 'bg-blue-soft text-blue'}`}>{slot.number}</span>
+        <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-lg font-bold ${slot.priority === 'yellow' ? 'bg-yellow-soft text-yellow' : 'bg-blue-soft text-blue'}`}>{slot.examNumber ?? slot.number}</span>
         <span className="min-w-0 flex-1">
           <span className="block text-sm text-muted">
-            פרק {slot.part} · שאלה {slot.number}
+            פרק {slot.part} · שאלה {slot.examNumber ?? slot.number}
             {slot.frequency && <> · {frequencyLabels[slot.frequency]}</>}
           </span>
           <span className="block text-lg font-bold leading-snug">{slot.title}</span>
@@ -39,7 +39,7 @@ function SlotCard({ questionnaire, slot, showPartNote }: { questionnaire: Questi
         <div className="mb-2 sm:hidden">
           <PriorityBadge priority={slot.priority} />
         </div>
-        <ProgressBar percent={progress.percent} tone={slot.priority === 'yellow' ? 'yellow' : 'blue'} label={`התקדמות בשאלה ${slot.number}`} />
+        <ProgressBar percent={progress.percent} tone={slot.priority === 'yellow' ? 'yellow' : 'blue'} label={`התקדמות בשאלה ${slot.examNumber ?? slot.number}`} />
         {slot.note && <p className="mt-3 text-sm text-muted">{slot.note}</p>}
         {showPartNote && questionnaire.partNotes[slot.part] && <p className="mt-2 border-s-2 border-primary-soft ps-3 text-sm text-muted">{questionnaire.partNotes[slot.part]}</p>}
       </div>
@@ -50,7 +50,7 @@ function SlotCard({ questionnaire, slot, showPartNote }: { questionnaire: Questi
           ))}
           <div className="flex flex-wrap gap-2 py-3">
             <Button size="sm" variant="soft" to={`/practice?code=${questionnaire.code}&slot=${slot.number}`} icon={<PencilLine size={15} />}>
-              תרגילים לשאלה {slot.number}
+              תרגילים לשאלה {slot.examNumber ?? slot.number}
             </Button>
           </div>
         </div>
@@ -71,14 +71,14 @@ export function SyllabusPage() {
   const progress = progressOf(questionnaire, state.ratings);
   const isFocus = state.focusMode === 'focus-2026';
   const background = backgroundTopics(questionnaire);
-  const yellow = questionnaire.slots.filter((slot) => slot.priority === 'yellow').map((slot) => slot.number);
-  const blue = questionnaire.slots.filter((slot) => slot.priority === 'blue').map((slot) => slot.number);
+  const yellow = questionnaire.slots.filter((slot) => slot.priority === 'yellow').map((slot) => slot.examNumber ?? slot.number).sort((a, b) => a - b);
+  const blue = questionnaire.slots.filter((slot) => slot.priority === 'blue').map((slot) => slot.examNumber ?? slot.number).sort((a, b) => a - b);
   const seenParts = new Set<string>();
 
   return (
     <>
       <PageHeader
-        eyebrow={`מפת הסילבוס · שאלון ${questionnaire.nickname} (${questionnaire.code})`}
+        eyebrow={`מפת הסילבוס · שאלון ${questionnaire.nickname} (${questionnaire.displayCode})`}
         title="מה לומדים לבגרות?"
         description="כל הנושאים לפי מבנה השאלון. סמנו רמת שליטה בכל תת-נושא. ההתקדמות מחושבת רק על מה שבבגרות."
         actions={
@@ -98,7 +98,7 @@ export function SyllabusPage() {
           { label: 'עונים על', value: `${questionnaire.questionsToAnswer} מתוך ${questionnaire.totalQuestions}` },
           { label: 'לשאלה', value: `${formatPoints(questionnaire.pointsPerQuestion)} נק׳` },
           { label: 'מהציון', value: `${questionnaire.weightPercent}%` },
-          { label: 'הגבלת פרקים', value: questionnaire.chapterRestriction ? 'יש' : 'אין' },
+          { label: 'כללי בחירה', value: questionnaire.chapterRestriction ? 'יש' : 'אין' },
         ].map((item) => (
           <div key={item.label} className="rounded-2xl bg-surface-2 px-3.5 py-2.5">
             <div className="text-xs font-semibold text-muted">{item.label}</div>
@@ -121,23 +121,27 @@ export function SyllabusPage() {
             {questionnaire.partNotes['כללי']}
           </Notice>
         )}
+        {questionnaire.choiceRule && (
+          <Notice tone="neutral" icon={<Info size={18} />}>
+            <b>כללי הבחירה:</b> {questionnaire.choiceRule}
+          </Notice>
+        )}
         <Notice tone="primary">
-          <b>סדר למידה מומלץ:</b> קודם השאלות הצהובות ({yellow.join(', ')}), ובסוף הכחולות ({blue.join(', ')}).
+          <b>סדר למידה מומלץ (של האתר, לא חלק מהמיקוד):</b> קודם השאלות הצהובות ({yellow.join(', ')}), ובסוף הכחולות ({blue.join(', ')}).
         </Notice>
       </div>
 
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <Tabs label="פרק" value={activePart} onChange={setActivePart} options={[{ value: 'all', label: 'הכול' }, ...parts.map((part) => ({ value: part, label: `פרק ${part}` }))]} className="min-w-0 flex-1" />
         <label className="flex items-center gap-3 text-base">
-          <span>{isFocus ? 'מיקוד 2026' : 'הסילבוס המלא'}</span>
+          <span>{isFocus ? 'מיקוד 2027' : 'הסילבוס המלא'}</span>
           <Switch checked={isFocus} onChange={(next) => actions.setFocusMode(next ? 'focus-2026' : 'full')} label="מצב מיקוד" />
         </label>
       </div>
 
       <div className="mb-4 flex flex-wrap items-center gap-1.5">
         <Badge tone="green">בבגרות</Badge>
-        <Badge tone="red">לא בבגרות</Badge>
-        <Badge tone="orange">הורדה 2026</Badge>
+        <Badge tone="orange">לא בבגרות 2027</Badge>
         <Badge tone="green">✓ נשאר במפורש</Badge>
         <Badge tone="yellow">ללמוד קודם</Badge>
         <Badge tone="blue">ללמוד בסוף</Badge>

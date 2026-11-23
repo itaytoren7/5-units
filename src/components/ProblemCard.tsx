@@ -4,6 +4,7 @@ import type { Problem } from '@/data/problems/types';
 import { problemStatus, problemStatusLabels } from '../lib/selectors';
 import { useStore } from '../state/store';
 import { Badge } from './ui';
+import { examNumber } from '@/lib/questionnaires';
 
 const difficultyLabels: Record<Problem['difficulty'], string> = { 1: 'קל', 2: 'בינוני', 3: 'מאתגר' };
 
@@ -44,7 +45,7 @@ export function ProblemCard({ problem, showSlot = true }: { problem: Problem; sh
         <Badge tone={statusTone}>{problemStatusLabels[status]}</Badge>
       </div>
       <div className="flex flex-wrap items-center gap-1.5 text-sm text-muted">
-        {showSlot && <Badge tone="primary">שאלה {problem.slot}</Badge>}
+        {showSlot && <Badge tone="primary">שאלה {examNumber(problem.questionnaire, problem.slot)}</Badge>}
         {problem.source === 'open-source' && <Badge tone="blue">בגרות עבר</Badge>}
         <DifficultyBadge difficulty={problem.difficulty} />
         <VerifiedBadge problem={problem} />

@@ -1,18 +1,18 @@
 import type { Chapter, ChapterId, LessonMeta, LessonStatus } from './types';
 
 /**
- * The study-book table of contents for questionnaire 806 (35581), section by section,
+ * The study-book table of contents for questionnaire 571 (internal code 35581) (35581), section by section,
  * with the status of every section in the summer-2026 מיקוד.
  * Content (intro, key facts, exercises) lives in ./content and ./oss and is merged in ./index.
  */
 export const chapters: Chapter[] = [
-  { id: 'euclidean-geometry', questionnaire: '35581', title: 'גאומטריה אוקלידית', description: 'זוויות, משולשים, מרובעים, מעגלים, שטחים ודמיון. הבסיס לשאלה 4 בשאלון 806.', topicIds: ['euclidean-geometry'], slots: [4] },
-  { id: 'analytic-geometry', questionnaire: '35581', title: 'מבוא לגאומטריה אנליטית', description: 'נקודות, ישרים ומעגלים במערכת צירים. כלי עזר לשאלות 4 ו-6–8, ובסיס לשאלה 1 בשאלון 807.', topicIds: ['analytic-geometry'], slots: [4] },
-  { id: 'trigonometry', questionnaire: '35581', title: 'טריגונומטריה במישור', description: 'פונקציות טריגונומטריות, זהויות, משוואות, ופתרון משולשים ומרובעים. שאלה 5 בשאלון 806.', topicIds: ['trigonometry'], slots: [5] },
-  { id: 'calculus', questionnaire: '35581', title: 'חדו״א של פולינום, מנה, שורש ופונקציות טריגונומטריות', description: 'נגזרות, חקירה, בעיות קיצון גרפיות, אינטגרלים ושטחים. שאלות 6, 7 ו-8 בשאלון 806.', topicIds: ['differential-calculus', 'integral-calculus'], slots: [6, 7, 8] },
-  { id: 'sequences', questionnaire: '35581', title: 'סדרות', description: 'סדרה הנדסית סופית ואינסופית וכלל נסיגה. שאלה 2 בשאלון 806. הסדרה החשבונית ירדה במיקוד 2026.', topicIds: ['sequences'], slots: [2] },
-  { id: 'probability', questionnaire: '35581', title: 'הסתברות', description: 'חוקי ההסתברות, עצים, טבלאות, תלות והתפלגות בינומית. שאלה 3 בשאלון 806.', topicIds: ['probability'], slots: [3] },
-  { id: 'word-problems', questionnaire: '35581', title: 'בעיות מילוליות', description: 'בעיות תנועה ובעיות אחוזים. שאלה 1 בשאלון 806. בעיות הספק ירדו מהבחינה.', topicIds: ['word-problems'], slots: [1] },
+  { id: 'euclidean-geometry', questionnaire: '35581', title: 'גאומטריה אוקלידית', description: 'זוויות, משולשים, מרובעים, מעגלים, שטחים ודמיון. הבסיס לשאלה 4 בשאלון 571.', topicIds: ['euclidean-geometry'], slots: [4] },
+  { id: 'analytic-geometry', questionnaire: '35581', title: 'מבוא לגאומטריה אנליטית', description: 'נקודות, ישרים ומעגלים במערכת צירים. כלי עזר לשאלות 4 ו-6–8, ובסיס לשאלה 1 בשאלון 572.', topicIds: ['analytic-geometry'], slots: [4] },
+  { id: 'trigonometry', questionnaire: '35581', title: 'טריגונומטריה במישור', description: 'פונקציות טריגונומטריות, זהויות, משוואות, ופתרון משולשים ומרובעים. שאלה 5 בשאלון 571.', topicIds: ['trigonometry'], slots: [5] },
+  { id: 'calculus', questionnaire: '35581', title: 'חדו״א של פולינום, מנה, שורש ופונקציות טריגונומטריות', description: 'נגזרות, חקירה, בעיות קיצון גאומטריות וגרפיות, אינטגרלים ושטחים. שאלות 6, 7 ו-8 בשאלון 571.', topicIds: ['differential-calculus', 'integral-calculus'], slots: [6, 7, 8] },
+  { id: 'sequences', questionnaire: '35581', title: 'סדרות', description: 'סדרה הנדסית סופית ואינסופית וכלל נסיגה. שאלה 3 בשאלון 571 (יחד עם אינדוקציה). הסדרה החשבונית לא בבחינה.', topicIds: ['sequences'], slots: [2] },
+  { id: 'probability', questionnaire: '35581', title: 'הסתברות', description: 'חוקי ההסתברות, עצים, טבלאות, תלות והתפלגות בינומית. שאלה 2 בשאלון 571.', topicIds: ['probability'], slots: [3] },
+  { id: 'word-problems', questionnaire: '35581', title: 'בעיות מילוליות', description: 'בעיות תנועה, אחוזים והספק. בשאלון 571 אין שאלה מילולית נפרדת, אבל הנושא יכול להופיע בסעיפים הקצרים של שאלה 1.', topicIds: ['word-problems'], slots: [1] },
 ];
 
 interface Options {
@@ -40,8 +40,8 @@ function lesson(chapterId: ChapterId, id: string, title: string, status: LessonS
   };
 }
 
-const OUT_ORIGINAL = 'לא בבחינה לפי המיקוד המקורי. מוצג לידיעה, כי ייתכן שיחזור במיקוד של שנה הבאה.';
-const OUT_2026 = 'ירד בהורדה של 2026. מוצג לידיעה, כי ייתכן שיחזור במיקוד של שנה הבאה.';
+const OUT_2026 = 'לא בבחינה לפי המיקוד של 2027. מוצג לידיעה בלבד.';
+const PENDING = 'הנושא בבחינה לפי המיקוד של 2027. התרגילים לשיעור הזה עוד לא נכתבו ויתווספו בקרוב.';
 
 const G = 'euclidean-geometry';
 const A = 'analytic-geometry';
@@ -71,9 +71,9 @@ export const lessonCatalog: LessonMeta[] = [
   lesson(G, 'geo-similar-ratios', 'יחס גדלים במשולשים דומים', 'partial', ['geo-similar-altitudes-areas', 'geo-bisector-similarity'], [4], { note: 'בבחינה: יחס צלעות ויחס גבהים. יחס היקפים, תיכונים, חוצי זווית ורדיוסים ירד במיקוד.' }),
   lesson(G, 'geo-similar-areas', 'יחס שטחים במשולשים דומים', 'in', ['geo-similar-altitudes-areas'], [4], { note: 'נשאר במפורש במיקוד.' }),
   lesson(G, 'geo-similarity-circles', 'יישום משפטי דמיון במעגלים', 'in', ['geo-cyclic-quadrilaterals', 'geo-circle-angles', 'geo-bisector-similarity'], [4], { note: 'דמיון משולשים במעגל, בלי משפטי הקטעים הפרופורציוניים (שירדו).' }),
-  lesson(G, 'geo-right-triangle-proportions', 'קטעים פרופורציוניים במשולש ישר זווית', 'out-original', ['geo-right-triangle-proportions'], [4], { note: OUT_ORIGINAL }),
+  lesson(G, 'geo-right-triangle-proportions', 'קטעים פרופורציוניים במשולש ישר זווית', 'pending', ['geo-right-triangle-proportions'], [4], { note: PENDING }),
   lesson(G, 'geo-similarity-review', 'פרופורציה ודמיון: תרגילים מסכמים', 'in', ['geo-thales-midline', 'geo-bisector-similarity', 'geo-similar-altitudes-areas'], [4], { kind: 'review' }),
-  lesson(G, 'geo-circle-proportions', 'קטעים פרופורציוניים במעגל', 'out-original', ['geo-circle-proportions'], [4], { note: OUT_ORIGINAL }),
+  lesson(G, 'geo-circle-proportions', 'קטעים פרופורציוניים במעגל', 'pending', ['geo-circle-proportions'], [4], { note: PENDING }),
 
   // מבוא לגאומטריה אנליטית
   lesson(A, 'ag-distance', 'המרחק בין שתי נקודות', 'in', ['ag-segments'], [4]),
@@ -83,10 +83,10 @@ export const lessonCatalog: LessonMeta[] = [
   lesson(A, 'ag-slope-parallel', 'שיפוע של ישר וישרים מקבילים', 'in', ['ag-lines'], [4]),
   lesson(A, 'ag-perpendicular', 'ניצבות בין ישרים', 'in', ['ag-lines'], [4]),
   lesson(A, 'ag-line-review', 'תרגילים מסכמים: הישר', 'in', ['ag-segments', 'ag-lines'], [4], { kind: 'review' }),
-  lesson(A, 'ag-circle-equation', 'משוואת המעגל', 'in', ['analytic-circle'], [1], { questionnaire: '35582', note: 'בשאלון 806 נדרש רק מעגל שמרכזו בראשית הצירים (לצורך המעגל הטריגונומטרי). המעגל הכללי נדרש בשאלון 807, שאלה 1.' }),
-  lesson(A, 'ag-circle-tangent', 'המשיק למעגל', 'in', ['analytic-circle'], [1], { questionnaire: '35582', note: 'נדרש בשאלון 807, שאלה 1 (משיק בנקודה שעל המעגל). לא נדרש בשאלון 806.' }),
+  lesson(A, 'ag-circle-equation', 'משוואת המעגל', 'in', ['analytic-circle'], [1], { questionnaire: '35582', note: 'בשאלון 571 נדרש רק מעגל שמרכזו בראשית הצירים (לצורך המעגל הטריגונומטרי). המעגל הכללי נדרש בשאלון 572, שאלה 1.' }),
+  lesson(A, 'ag-circle-tangent', 'המשיק למעגל', 'in', ['analytic-circle'], [1], { questionnaire: '35582', note: 'נדרש בשאלון 572, שאלה 1 (משיק בנקודה שעל המעגל). לא נדרש בשאלון 571.' }),
   lesson(A, 'ag-line-more', 'תרגילים נוספים: ישר', 'in', ['ag-segments', 'ag-lines'], [4], { kind: 'review' }),
-  lesson(A, 'ag-circle-more', 'תרגילים נוספים: מעגל', 'in', ['analytic-circle'], [1], { questionnaire: '35582', kind: 'review', note: 'מעגל כללי ומשיק: שאלון 807, שאלה 1.' }),
+  lesson(A, 'ag-circle-more', 'תרגילים נוספים: מעגל', 'in', ['analytic-circle'], [1], { questionnaire: '35582', kind: 'review', note: 'מעגל כללי ומשיק: שאלון 572, שאלה 1.' }),
   lesson(A, 'ag-self-practice', 'תרגילים לעבודה עצמית', 'in', ['ag-segments', 'ag-lines', 'ag-circle-origin'], [4], { kind: 'review' }),
 
   // טריגונומטריה במישור
@@ -118,11 +118,11 @@ export const lessonCatalog: LessonMeta[] = [
   lesson(C, 'calc-extremum-problems', 'בעיות קיצון', 'partial', ['diff-graphical-extrema'], [8], { topicId: 'differential-calculus', note: 'בבחינה נשארו בעיות קיצון גרפיות (על גרף של פונקציה). בעיות קיצון מילוליות, גאומטריות, במרחב, כלכליות ועם פונקציות טריגונומטריות ירדו.' }),
   lesson(C, 'calc-indefinite-integral', 'אינטגרל בלתי מסוים: פולינום, מנה ושורש', 'partial', ['int-indefinite', 'int-polynomial-rational', 'int-antiderivative-point'], [6], { topicId: 'integral-calculus', note: 'אינטגרל של פונקציית שורש ירד במיקוד. נשארו פולינומים ו-$\\frac{c\\,f\'(x)}{(f(x))^n}$.' }),
   lesson(C, 'calc-areas', 'חישוב שטחים: פולינום, מנה ושורש', 'partial', ['int-definite-areas', 'int-polynomial-rational'], [6], { topicId: 'integral-calculus', note: 'בלי אינטגרל של פונקציית שורש.' }),
-  lesson(C, 'calc-trig-integral', 'אינטגרל בלתי מסוים: פונקציות טריגונומטריות', 'out-original', ['int-roots-trig'], [7], { topicId: 'integral-calculus', note: OUT_ORIGINAL }),
-  lesson(C, 'calc-trig-areas', 'חישוב שטחים: פונקציות טריגונומטריות', 'out-original', ['int-roots-trig'], [7], { topicId: 'integral-calculus', note: OUT_ORIGINAL }),
+  lesson(C, 'calc-trig-integral', 'אינטגרל בלתי מסוים: פונקציות טריגונומטריות', 'pending', ['int-trig'], [7], { topicId: 'integral-calculus', note: PENDING }),
+  lesson(C, 'calc-trig-areas', 'חישוב שטחים: פונקציות טריגונומטריות', 'pending', ['int-trig'], [7], { topicId: 'integral-calculus', note: PENDING }),
   lesson(C, 'calc-graph-integral', 'הקשר בין גרף הפונקציה וגרף הנגזרת: אינטגרלים', 'in', ['int-antiderivative-point', 'diff-function-relations', 'int-definite-areas'], [6], { topicId: 'integral-calculus', note: 'נשאר במפורש במיקוד: אינטגרל של פונקציה נגזרת שמוביל לפונקציה הקדומה.' }),
-  lesson(C, 'calc-volume', 'נפח גוף סיבוב', 'out-original', ['int-volume'], [6], { topicId: 'integral-calculus', note: OUT_ORIGINAL }),
-  lesson(C, 'calc-integral-extrema', 'בעיות קיצון עם שימוש באינטגרלים', 'out-original', ['int-extrema'], [8], { topicId: 'integral-calculus', note: OUT_ORIGINAL }),
+  lesson(C, 'calc-volume', 'נפח גוף סיבוב', 'out-2026', ['int-volume'], [6], { topicId: 'integral-calculus', note: OUT_2026 }),
+  lesson(C, 'calc-integral-extrema', 'בעיות קיצון עם שימוש באינטגרלים', 'out-2026', ['int-extrema'], [8], { topicId: 'integral-calculus', note: OUT_2026 }),
   lesson(C, 'calc-review', 'תרגילים מסכמים', 'in', ['diff-investigation', 'diff-tangent-on-graph', 'int-definite-areas', 'diff-graphical-extrema'], [6, 7, 8], { topicId: 'differential-calculus', kind: 'review' }),
 
   // סדרות
@@ -154,10 +154,10 @@ export const lessonCatalog: LessonMeta[] = [
   // בעיות מילוליות
   lesson(W, 'word-motion', 'בעיות תנועה', 'in', ['word-motion'], [1], { note: 'נשאר במפורש במיקוד.' }),
   lesson(W, 'word-motion-advanced', 'בעיות תנועה: תרגילים מתקדמים', 'in', ['word-motion'], [1]),
-  lesson(W, 'word-work', 'בעיות הספק', 'out-original', ['word-work-rate'], [1], { note: OUT_ORIGINAL }),
-  lesson(W, 'word-work-advanced', 'בעיות הספק: תרגילים מתקדמים', 'out-original', ['word-work-rate'], [1], { note: OUT_ORIGINAL }),
+  lesson(W, 'word-work', 'בעיות הספק', 'pending', ['word-work-rate'], [1], { note: PENDING }),
+  lesson(W, 'word-work-advanced', 'בעיות הספק: תרגילים מתקדמים', 'pending', ['word-work-rate'], [1], { note: PENDING }),
   lesson(W, 'word-motion-practice', 'בעיות תנועה: שאלות לעבודה עצמית', 'in', ['word-motion'], [1], { kind: 'review' }),
-  lesson(W, 'word-work-practice', 'בעיות הספק: שאלות לעבודה עצמית', 'out-original', ['word-work-rate'], [1], { note: OUT_ORIGINAL }),
+  lesson(W, 'word-work-practice', 'בעיות הספק: שאלות לעבודה עצמית', 'pending', ['word-work-rate'], [1], { note: PENDING }),
   lesson(W, 'word-percentages', 'בעיות אחוזים', 'in', ['word-percentages'], [1], { extra: true, note: 'לא פרק נפרד בספר, אבל שאלות אחוזים יכולות להופיע בשאלה 1 ובכל נושא אחר.' }),
 ];
 
