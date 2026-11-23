@@ -1,5 +1,6 @@
 import type { Problem } from '../types';
 import { slot1Problems } from './slot1';
+import { shortProblems } from './short';
 import { slot2Problems } from './slot2';
 import { slot3Problems } from './slot3';
 import { slot4Problems } from './slot4';
@@ -11,6 +12,7 @@ import { archiveProblems } from './archive';
 
 export const problems35581: Problem[] = [
   ...slot1Problems,
+  ...shortProblems,
   ...slot2Problems,
   ...slot3Problems,
   ...slot4Problems,

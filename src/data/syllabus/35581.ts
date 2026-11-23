@@ -21,7 +21,7 @@ export const questionnaire35581: Questionnaire = {
   },
   warnings: ['הנושאים המצוינים לכל שאלה הם ״לרוב״. ייתכנו שינויים בין השאלות.'],
   slots: [
-    { number: 1, examNumber: 1, part: 'א', title: 'שאלות קצרות ממגוון הנושאים', priority: 'blue', topicIds: ALL_TOPICS, note: 'עונים על 2 סעיפים מתוך 4. במאגר יש כרגע שאלות מילוליות; סעיפים קצרים בסגנון החדש יתווספו.' },
+    { number: 1, examNumber: 1, part: 'א', title: 'שאלות קצרות ממגוון הנושאים', priority: 'blue', topicIds: ALL_TOPICS, note: 'עונים על 2 סעיפים מתוך 4. במאגר יש שאלות קצרות בסגנון החדש, ולצידן שאלות מילוליות ארוכות לתרגול נוסף.' },
     { number: 3, examNumber: 2, part: 'ב', title: 'הסתברות', priority: 'yellow', topicIds: ['probability'] },
     { number: 2, examNumber: 3, part: 'ב', title: 'סדרות ואינדוקציה', priority: 'blue', topicIds: ['sequences', 'induction'] },
     { number: 4, examNumber: 4, part: 'ג', title: 'גאומטריה', priority: 'yellow', topicIds: ['analytic-geometry', 'euclidean-geometry'] },
