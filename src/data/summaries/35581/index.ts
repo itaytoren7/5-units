@@ -3,6 +3,7 @@ import { algebraSummary } from './algebra';
 import { analyticGeometrySummary } from './analytic-geometry';
 import { differentialCalculusSummary } from './differential-calculus';
 import { euclideanGeometrySummary } from './euclidean-geometry';
+import { inductionSummary } from './induction';
 import { integralCalculusSummary } from './integral-calculus';
 import { probabilitySummary } from './probability';
 import { sequencesSummary } from './sequences';
@@ -14,6 +15,7 @@ export const summaries35581: TopicSummary[] = [
   algebraSummary,
   wordProblemsSummary,
   sequencesSummary,
+  inductionSummary,
   probabilitySummary,
   euclideanGeometrySummary,
   trigonometrySummary,

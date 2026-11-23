@@ -1,5 +1,5 @@
 /**
- * Verification for the 35581 (806) topic summaries:
+ * Verification for the 35581 (questionnaire 571) topic summaries:
  *  - a summary exists for every topic of the questionnaire, with the agreed size ranges
  *  - every worked-example number is recomputed independently (numeric root finding, integration,
  *    enumeration or coordinate models) rather than by re-evaluating the closed form in the text.
@@ -28,6 +28,7 @@ const requiredTopics = [
   'algebra',
   'word-problems',
   'sequences',
+  'induction',
   'probability',
   'euclidean-geometry',
   'trigonometry',
@@ -167,6 +168,35 @@ describe('35581 summaries – sequences examples', () => {
     }
     expect(n).toBe(6);
     expect(sum).toBe(126);
+  });
+});
+
+describe('35581 summaries – induction examples', () => {
+  it('1*2 + 2*3 + ... + n(n+1) = n(n+1)(n+2)/3 for n = 1..30 (440 at n = 10)', () => {
+    let sum = 0;
+    for (let n = 1; n <= 30; n += 1) {
+      sum += n * (n + 1);
+      expect(sum, `n=${n}`).toBe((n * (n + 1) * (n + 2)) / 3);
+      if (n === 10) expect(sum).toBe(440);
+    }
+  });
+
+  it('a1 = 1, a(n+1) = 2a(n) + 1 gives a(n) = 2^n - 1 for n = 1..30 (1023 at n = 10)', () => {
+    let term = 1;
+    for (let n = 1; n <= 30; n += 1) {
+      expect(term, `n=${n}`).toBe(2 ** n - 1);
+      if (n === 10) expect(term).toBe(1023);
+      term = 2 * term + 1;
+    }
+  });
+
+  it('1/(1*2) + ... + 1/(n(n+1)) = n/(n+1) for n = 1..99', () => {
+    let sum = 0;
+    for (let n = 1; n <= 99; n += 1) {
+      sum += 1 / (n * (n + 1));
+      expect(sum, `n=${n}`).toBeCloseTo(n / (n + 1), 12);
+    }
+    expect(sum).toBeCloseTo(0.99, 12);
   });
 });
 
