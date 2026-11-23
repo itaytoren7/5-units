@@ -18,6 +18,7 @@ import { questionnaireByCode, slotOf, topicOf } from '../lib/questionnaires';
 import { useStore } from '../state/store';
 import type { SectionResult } from '../state/types';
 import { NotFound } from './NotFound';
+import { examNumber } from '@/lib/questionnaires';
 
 const resultLabels: Record<SectionResult, string> = { correct: 'צדקתי', partial: 'חלקית', wrong: 'טעיתי' };
 const resultTone: Record<SectionResult, 'green' | 'orange' | 'red'> = { correct: 'green', partial: 'orange', wrong: 'red' };
@@ -285,7 +286,7 @@ export function PracticePage() {
         eyebrow={
           <span className="flex flex-wrap items-center gap-1.5">
             <Link to={`/practice?code=${problem.questionnaire}&slot=${problem.slot}`} className="hover:underline">
-              שאלון {questionnaire.nickname} · שאלה {problem.slot}
+              שאלון {questionnaire.nickname} · שאלה {examNumber(problem.questionnaire, problem.slot)}
             </Link>
             {topic && (
               <>
@@ -305,7 +306,11 @@ export function PracticePage() {
           <DifficultyBadge difficulty={problem.difficulty} />
           <Badge>~{problem.estimatedMinutes} דק׳</Badge>
           <Badge>{problem.sections.length} סעיפים</Badge>
+          {problem.format === 'short-questions' && <Badge tone="primary">עונים על 2 מתוך 4</Badge>}
         </div>
+        {problem.format === 'short-questions' && (
+          <p className="mt-3 text-sm text-muted">שאלה 1 בשאלון 571: ארבעה סעיפים קצרים, כל אחד מנושא אחר ולא תלוי באחרים. בבחינה עונים על שניים מהם. כאן כדאי לתרגל את כולם.</p>
+        )}
       </PageHeader>
 
       <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-8">

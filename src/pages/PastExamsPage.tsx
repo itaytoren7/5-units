@@ -104,7 +104,7 @@ function OfficialExamsCatalog() {
         <Stat label="ממוצע" value={average === null ? '—' : average} tone={average === null ? 'neutral' : average >= 85 ? 'green' : average >= 55 ? 'orange' : 'red'} />
       </div>
       <p className="mb-4 text-sm text-muted">
-        בחינות לפני קיץ 2026 נכתבו במבנה הישן. למשל, בשאלון 806 היו 3.5 שעות, 20 נקודות לשאלה וחובה לענות על שאלה מכל פרק. חלק מהשאלות בהן עוסקות בנושאים שירדו במיקוד, ואותן אפשר לדלג.
+        הבחינות ברשימה הן של השאלונים הקודמים, 806 ו-807 (35581 ו-35582). החומר דומה מאוד לזה של 571 ו-572, אבל המבנה שונה: ב-571 יש שאלה 1 של סעיפים קצרים, ושאלות ההסתברות והסדרות מחליפות מקום. שאלות שעוסקות בנושאים שלא בבחינה לפי המיקוד של 2027 אפשר לדלג.
       </p>
       <div className="flex flex-col gap-5">
         {years.map((year) => {
@@ -199,7 +199,7 @@ export function PastExamsPage() {
               >
                 {questionnaireList.map((entry) => (
                   <option key={entry.code} value={entry.code}>
-                    שאלון {entry.nickname} ({entry.code})
+                    שאלון {entry.nickname} ({entry.displayCode})
                   </option>
                 ))}
               </select>

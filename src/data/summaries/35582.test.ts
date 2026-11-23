@@ -1,5 +1,5 @@
 /**
- * Verification for the 35582 (807) topic summaries: every required topic has a summary,
+ * Verification for the 35582 (questionnaire 572) topic summaries: every required topic has a summary,
  * size guidelines hold, and every worked-example number is recomputed independently
  * (coordinate models, numeric root finding / integration, mathjs complex arithmetic).
  */

@@ -1,19 +1,23 @@
 import type { Questionnaire } from './types';
 
+/** Questionnaire 35572 (winter / summer 2027); the internal code stays 35582. Source: 572.pdf. */
 export const questionnaire35582: Questionnaire = {
-  code: '35582', nickname: '807', weightPercent: 40, durationMinutes: 175,
+  code: '35582', displayCode: '35572', nickname: '572', weightPercent: 40, durationMinutes: 150,
   questionsToAnswer: 3, totalQuestions: 5, pointsPerQuestion: 100 / 3, maxScore: 100,
-  chapterRestriction: false,
+  chapterRestriction: true,
+  choiceGroups: [[1, 2, 3], [4, 5]],
+  choiceRule: 'לפחות שאלה אחת מכל פרק.',
   partNotes: {
-    כללי: 'בכל פרק – לא בהכרח שאלה אחת בדיוק מכל נושא (אם בכלל). נושא שמופיע לעיתים רחוקות: חדו״א של פונקציות חזקה עם מעריך רציונלי. גדילה ודעיכה ושילוב חדו״א עם טריגו – הוצאו ב-2026.',
+    א: 'לא בהכרח שאלה אחת בדיוק מכל נושא (אם בכלל).',
+    ב: 'לעיתים רחוקות, במקום אחת משאלות החדו״א עשויה להופיע שאלה בבעיות גדילה ודעיכה, או שאלה המשלבת חדו״א עם פונקציות טריגונומטריות.',
   },
-  warnings: ['אי-למידת כל החומר כרוכה בסיכון (למשל: אין מחויבות לשאלה במרוכבים, אבל בפועל נהוג לכלול שאלה כזו).'],
+  warnings: ['הנושאים המצוינים לכל שאלה הם ״לרוב״. לא בהכרח תהיה שאלה מכל נושא.'],
   slots: [
     { number: 1, part: 'א', title: 'גאומטריה אנליטית', priority: 'blue', frequency: 'usually', topicIds: ['analytic-geometry'] },
     { number: 2, part: 'א', title: 'וקטורים (כולל טריגונומטריה במרחב)', priority: 'blue', frequency: 'usually', topicIds: ['vectors', 'solid-trigonometry'] },
     { number: 3, part: 'א', title: 'מספרים מרוכבים (כולל אלמנטים מאנליטית וסדרות)', priority: 'yellow', frequency: 'usually', topicIds: ['complex-numbers'] },
-    { number: 4, part: 'ב', title: 'חדו״א (חקירה, שטחים) של פונקציות מעריכיות ולוגריתמיות, כולל שילוב פולינום ורציונלית', priority: 'yellow', frequency: 'usually', topicIds: ['differential-integral'] },
-    { number: 5, part: 'ב', title: 'כמו שאלה 4', priority: 'yellow', frequency: 'usually', topicIds: ['differential-integral'] },
+    { number: 4, part: 'ב', title: 'חדו״א (חקירה, שטחים ובעיות קיצון) של פונקציות מעריכיות ולוגריתמיות, כולל שילוב פולינום ורציונלית', priority: 'yellow', frequency: 'usually', topicIds: ['differential-integral', 'exponential-logarithms', 'growth-decay'] },
+    { number: 5, part: 'ב', title: 'כמו שאלה 4', priority: 'yellow', frequency: 'usually', topicIds: ['differential-integral', 'exponential-logarithms', 'growth-decay'] },
   ],
   topics: [
     { id: 'vectors', title: 'וקטורים', note: 'לומדים הוכחות בעזרת וקטורים, אבל בבחינה לא תידרש הוכחת משפט גאומטרי בעזרת וקטורים.', subtopics: [
@@ -22,19 +26,21 @@ export const questionnaire35582: Questionnaire = {
       { id: 'vec-coordinate-system', title: 'מערכת צירים במרחב; הצגה אלגברית ופעולות', status: 'in' },
       { id: 'vec-line', title: 'הצגה פרמטרית של ישר; מצב הדדי בין ישרים', status: 'in' },
       { id: 'vec-plane', title: 'הצגה פרמטרית של מישור ומשוואת מישור; מצב הדדי מישור–מישור וישר–מישור', status: 'in' },
-      { id: 'vec-point-distance', title: 'מרחק בין שתי נקודות', status: 'in', keptExplicitly: true },
-      { id: 'vec-distances', title: 'מרחקים: נקודה–ישר, נקודה–מישור, ישרים מקבילים, ישרים מצטלבים, ישר–מישור, מישורים מקבילים', status: 'out-2026' },
+      { id: 'vec-point-distance', title: 'מרחק בין שתי נקודות', status: 'in' },
+      { id: 'vec-distances', title: 'מרחקים: נקודה–ישר, נקודה–מישור, ישרים מקבילים, ישרים מצטלבים, ישר–מישור, מישורים מקבילים', status: 'in' },
       { id: 'vec-angles-line', title: 'זווית בין שני ישרים; זווית בין ישר למישור', status: 'in' },
-      { id: 'vec-planes-angle', title: 'זווית בין שני מישורים', status: 'out-2026' },
+      { id: 'vec-planes-angle', title: 'זווית בין שני מישורים', status: 'in' },
       { id: 'vec-theorems', title: 'משפטים לשימוש ללא הוכחה: (א) ישר ניצב למישור אם״ם הוא ניצב לשני ישרים לא מקבילים במישור; (ב) ישר במישור ניצב להיטל אם״ם הוא ניצב למשופע; (ג) ישר ניצב למישור ABC אם״ם l⃗·OA⃗=l⃗·OB⃗=l⃗·OC⃗; (ד) כל וקטור במישור ניתן להצגה יחידה כקומבינציה ליניארית של שני וקטורים בלתי תלויים במישור; (ה) כל שלושה וקטורים בלתי תלויים במרחב הם בסיס.', status: 'in' },
     ] },
-    { id: 'solid-trigonometry', title: 'טריגונומטריה במרחב', note: '״זווית בין מישורים״ הוצאה בנושא הווקטורים; בטריגו במרחב לא צוין – לבדוק מול המורה.', subtopics: [
+    { id: 'solid-trigonometry', title: 'טריגונומטריה במרחב', subtopics: [
       { id: 'solid-bodies', title: 'חישובי זוויות, אורכים, שטחים (כולל מעטפת/שטח פנים) ונפחים בגופים ישרים: תיבה (כולל קובייה), מנסרה, פירמידה', status: 'in' },
+      { id: 'solid-round-bodies', title: 'גליל, חרוט, כדור', status: 'out-2026' },
       { id: 'solid-perpendicularity', title: 'ישר ניצב למישור, היטל, זווית בין ישרים, בין ישר למישור, בין מישורים, משפט שלושת האנכים', status: 'in' },
       { id: 'solid-triangle-solving', title: 'פתרון משולשים: S=½ab sin γ, משפט הסינוסים והקוסינוסים', status: 'in' },
     ] },
     { id: 'complex-numbers', title: 'מספרים מרוכבים', note: 'ייתכן שיידרש ידע בסדרות ושימוש בזהויות טריגונומטריות.', subtopics: [
       { id: 'complex-arithmetic', title: 'הגדרה, שוויון, ארבע פעולות, ערך מוחלט, צמוד, שורש ריבועי', status: 'in' },
+      { id: 'complex-arithmetic-sequence', title: 'שילוב מספרים מרוכבים עם סדרה חשבונית', status: 'out-2026' },
       { id: 'complex-gauss-demoivre', title: 'הצגה במישור גאוס; משפט דה-מואבר; שורשי יחידה; שורשים', status: 'in' },
       { id: 'complex-geometry', title: 'משמעויות גאומטריות של ארבע הפעולות, הערך המוחלט והשורשים', status: 'in' },
     ] },
@@ -44,7 +50,7 @@ export const questionnaire35582: Questionnaire = {
       { id: 'analytic-circle', title: 'מעגל כללי; התנאי ש-Ax²+By²+Cx+Dy+E=0 מתאר מעגל; משיק למעגל בנקודה עליו', status: 'in' },
       { id: 'analytic-ellipse', title: 'אליפסה: מקום גאומטרי, משוואה קנונית, צירים ומוקדים, מצב הדדי ישר–אליפסה לפי סימן הדיסקרימיננטה', status: 'in' },
       { id: 'analytic-loci', title: 'בעיות המשלבות צורות; מקומות גאומטריים', status: 'in' },
-      { id: 'analytic-parabola', title: 'פרבולה (מקום גאומטרי, משוואה קנונית, מוקד, מדריך, משיק)', status: 'out-2026' },
+      { id: 'analytic-parabola', title: 'פרבולה (מקום גאומטרי, משוואה קנונית, מוקד, מדריך, משיק)', status: 'in' },
     ] },
     { id: 'exponential-logarithms', title: 'אלגברה: חזקות, מעריכיות, לוגריתמים', subtopics: [
       { id: 'exp-powers-roots', title: 'חוקי חזקות, מעריך רציונלי, שורשים, ביטול שורש במכנה', status: 'in' },
@@ -52,25 +58,26 @@ export const questionnaire35582: Questionnaire = {
       { id: 'log-functions', title: 'לוגריתמים: חוקי לוג, מעבר בסיס; פונקציות לוגריתמיות; משוואות ואי-שוויונות לוגריתמיים (כנדרש בחדו״א)', status: 'in' },
     ] },
     { id: 'growth-decay', title: 'בעיות גדילה ודעיכה', subtopics: [
-      { id: 'growth-all', title: 'גדילה ודעיכה מעריכית, זמן מחצית חיים (כל הנושא)', status: 'out-2026' },
+      { id: 'growth-all', title: 'גדילה ודעיכה מעריכית, זמן מחצית חיים (כל הנושא)', status: 'in' },
     ] },
-    { id: 'differential-integral', title: 'חשבון דיפרנציאלי ואינטגרלי', note: 'החדו״א כאן כולל את כל הנושאים והשימושים הנדרשים גם בשאלון 35581 (בכפוף להורדות).', subtopics: [
+    { id: 'differential-integral', title: 'חשבון דיפרנציאלי ואינטגרלי', note: 'החדו״א כאן כולל את כל הנושאים והשימושים הנדרשים גם בשאלון 571 (בכפוף להורדות של שאלון 572).', subtopics: [
       { id: 'calc-foundations', title: 'מושגי יסוד, גבול אינטואיטיבי, |x|, חיתוך, עלייה/ירידה, זוגיות', status: 'in' },
       { id: 'calc-derivatives', title: 'נגזרות של e^x, ln x, פונקציות חזקה עם מעריך רציונלי, ושילובן עם פולינום ופונקציה רציונלית; סכום, מכפלה, מנה, הרכבה', status: 'in' },
-      { id: 'calc-other-bases', title: 'פונקציות מעריכיות ולוגריתמיות בבסיס שונה מ-e (a^x, log_a x)', status: 'out-2026' },
-      { id: 'calc-trig-root-combinations', title: 'שילוב פונקציות מעריכיות ולוגריתמיות עם פונקציות טריגונומטריות או שורש', status: 'out-2026' },
+      { id: 'calc-other-bases', title: 'פונקציות מעריכיות ולוגריתמיות בבסיס שונה מ-e (a^x, log_a x)', status: 'in' },
+      { id: 'calc-trig-root-combinations', title: 'שילוב פונקציות מעריכיות ולוגריתמיות עם פונקציות טריגונומטריות או שורש', status: 'in' },
       { id: 'calc-second-derivative', title: 'נגזרת שנייה, קעירות, פיתול; משיק בנקודה על הגרף', status: 'in' },
-      { id: 'calc-external-tangent', title: 'משיק מנקודה מחוץ לגרף', status: 'out-original' },
+      { id: 'calc-external-tangent', title: 'משיק מנקודה מחוץ לגרף', status: 'in' },
       { id: 'calc-investigation', title: 'חקירה ושרטוט, כולל אסימפטוטות מקבילות לצירים: ל-e^x, ln x ושילובים פשוטים – נדרש; ל-e^{f(x)}, ln f(x) – רק כשמציאתן פשוטה; למכפלה או מנה של פונקציית חזקה עם אחת מהן – לא נדרש', status: 'in' },
       { id: 'calc-function-relations', title: 'הקשר בין f, f′, f″', status: 'in' },
-      { id: 'calc-extrema', title: 'בעיות קיצון (כל הסוגים)', status: 'out-2026' },
+      { id: 'calc-extrema', title: 'בעיות קיצון', status: 'in' },
+      { id: 'calc-extrema-trig-integral', title: 'בעיית קיצון עם פונקציות טריגונומטריות או עם אינטגרל', status: 'out-2026' },
       { id: 'calc-integrals', title: 'אינטגרלים של x^r, e^x, 1/x, ושל [f(x)]^r, e^{f(x)}, 1/f(x) כאשר f ליניארית; f′(x)/f(x) — למשל ∫e^x/(e^x+1)dx=ln(e^x+1)+C', status: 'in' },
-      { id: 'calc-other-base-integrals', title: 'אינטגרל של a^x, a^{f(x)} (בסיס שונה מ-e)', status: 'out-2026' },
-      { id: 'calc-trig-root-integrals', title: 'אינטגרל של פונקציות טריגונומטריות או שורש', status: 'out-original' },
-      { id: 'calc-polynomial-division', title: 'חילוק פולינומים (כמו ∫(x³-x²+x-1)/(x+3)dx)', status: 'out-original' },
+      { id: 'calc-other-base-integrals', title: 'אינטגרל של a^x, a^{f(x)} (בסיס שונה מ-e)', status: 'in' },
+      { id: 'calc-trig-root-integrals', title: 'אינטגרל של פונקציית שורש או של פונקציה טריגונומטרית', status: 'out-2026' },
+      { id: 'calc-polynomial-division', title: 'חילוק פולינומים (כמו ∫(x³-x²+x-1)/(x+3)dx)', status: 'in' },
       { id: 'calc-area', title: 'אינטגרל מסוים; שטח בין גרף לציר x; שטח בין שני גרפים; שטחים מורכבים', status: 'in' },
       { id: 'calc-antiderivative', title: 'מציאת פונקציה לפי נגזרת ונקודה; אינטגרל של פונקציה נגזרת שמוביל לפונקציה הקדומה', status: 'in', keptExplicitly: true },
-      { id: 'calc-volume', title: 'נפח גוף סיבוב', status: 'out-original' },
+      { id: 'calc-volume', title: 'נפח גוף סיבוב', status: 'in' },
     ] },
   ],
 };

@@ -7,7 +7,7 @@ export interface ExamAnswer {
 }
 
 export function getQuestionValue(questionnaire: QuestionnaireCode): number {
-  return questionnaire === '35581' ? 22 : 100 / 3;
+  return questionnaire === '35581' ? 20 : 100 / 3;
 }
 
 export function clampFraction(value: number): number {
@@ -16,7 +16,7 @@ export function clampFraction(value: number): number {
   return Math.min(1, Math.max(0, asFraction));
 }
 
-/** 35581: min(100, Σ 22·fraction); 35582: Σ 33⅓·fraction. */
+/** 35581 (exam 35571): min(100, Σ 20·fraction); 35582: Σ 33⅓·fraction. */
 export function calculateExamScore(questionnaire: QuestionnaireCode, answers: ExamAnswer[]): number {
   const value = getQuestionValue(questionnaire);
   const total = answers.reduce((sum, answer) => sum + clampFraction(answer.fraction) * value, 0);

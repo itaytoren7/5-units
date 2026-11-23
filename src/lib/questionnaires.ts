@@ -16,6 +16,12 @@ export function slotOf(questionnaire: Questionnaire, number: number): QuestionSl
   return questionnaire.slots.find((slot) => slot.number === number);
 }
 
+/** The question number printed in the real exam for an internal slot number. */
+export function examNumber(code: string | undefined, slotNumber: number): number {
+  const slot = questionnaireByCode(code)?.slots.find((entry) => entry.number === slotNumber);
+  return slot?.examNumber ?? slotNumber;
+}
+
 export function topicOf(questionnaire: Questionnaire, topicId: string): Topic | undefined {
   return questionnaire.topics.find((topic) => topic.id === topicId);
 }

@@ -18,7 +18,10 @@ export interface Topic {
 }
 
 export interface QuestionSlot {
+  /** Internal key (matches the problem bank and saved progress). Not necessarily the number printed in the exam. */
   number: number;
+  /** The question number in the real exam, when it differs from `number`. */
+  examNumber?: number;
   part: string;
   title: string;
   priority: Priority;
@@ -28,7 +31,10 @@ export interface QuestionSlot {
 }
 
 export interface Questionnaire {
+  /** Internal key, kept from the 2026 structure so saved progress survives. */
   code: string;
+  /** The questionnaire number as printed on the exam (e.g. 35571). */
+  displayCode: string;
   nickname: string;
   weightPercent: number;
   durationMinutes: number;
@@ -37,6 +43,10 @@ export interface Questionnaire {
   pointsPerQuestion: number;
   maxScore: number;
   chapterRestriction: boolean;
+  /** Each group lists slot numbers (internal) of which at least one must be answered. */
+  choiceGroups?: number[][];
+  /** The choice rule in words. */
+  choiceRule?: string;
   partNotes: Record<string, string>;
   slots: QuestionSlot[];
   topics: Topic[];

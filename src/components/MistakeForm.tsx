@@ -56,7 +56,7 @@ export function MistakeForm({ initial, lockQuestionnaire = false, onSave, onCanc
             >
               {questionnaireList.map((entry) => (
                 <option key={entry.code} value={entry.code}>
-                  שאלון {entry.nickname} ({entry.code})
+                  שאלון {entry.nickname} ({entry.displayCode})
                 </option>
               ))}
             </select>

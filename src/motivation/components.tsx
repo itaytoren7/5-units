@@ -1,8 +1,10 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Award, Eye, Flag, Flame, Layers, Lock, Megaphone, Pencil, Repeat, Star, Target, Timer, TrendingDown, Trophy, X, Zap } from 'lucide-react';
 import type { CoachKind, CoachMessage } from './coach';
 import { formatShortDate } from '../lib/dates';
 import type { BadgeIcon } from './badges';
+import { celebrate } from '../motion/motion';
 import { useMotivation } from './store';
 
 const icons: Record<BadgeIcon, typeof Star> = { timer: Timer, layers: Layers, star: Star, target: Target, flag: Flag, trophy: Trophy, flame: Flame, zap: Zap, award: Award, pencil: Pencil };
@@ -29,7 +31,7 @@ export function BadgeGrid({ limit }: { limit?: number }) {
   });
   const shown = limit ? ordered.slice(0, limit) : ordered;
   return (
-    <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+    <ul className="stagger grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
       {shown.map(({ badge, unlockedAt }) => {
         const Icon = icons[badge.icon];
         return (
@@ -47,6 +49,11 @@ export function BadgeGrid({ limit }: { limit?: number }) {
 /** Small "pop" shown when a badge is unlocked. */
 export function BadgePop() {
   const { pop, dismissPop } = useMotivation();
+  const popTitle = pop?.title;
+  // A new badge is rare and earned: it gets confetti.
+  useEffect(() => {
+    if (popTitle) celebrate({ y: 90 });
+  }, [popTitle]);
   if (!pop) return null;
   const Icon = icons[pop.icon];
   return (

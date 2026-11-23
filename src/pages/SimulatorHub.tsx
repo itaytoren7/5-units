@@ -6,6 +6,7 @@ import { formatDateTime } from '../lib/dates';
 import { formatDuration, formatPoints, formatScore } from '../lib/format';
 import { questionnaireList } from '../lib/questionnaires';
 import { useStore } from '../state/store';
+import { examNumber } from '@/lib/questionnaires';
 
 export function SimulatorHub() {
   const { state, actions } = useStore();
@@ -24,7 +25,7 @@ export function SimulatorHub() {
                 {active && <Badge tone="orange">סימולציה פעילה</Badge>}
               </div>
               <div>
-                <h2 className="text-2xl font-bold">שאלון {questionnaire.code}</h2>
+                <h2 className="text-2xl font-bold">שאלון {questionnaire.displayCode}</h2>
                 <p className="mt-1 text-sm text-muted">
                   {formatDuration(questionnaire.durationMinutes)} · {questionnaire.questionsToAnswer} מתוך {questionnaire.totalQuestions} · {formatPoints(questionnaire.pointsPerQuestion)} נק׳ לשאלה
                 </p>
@@ -70,7 +71,7 @@ export function SimulatorHub() {
                       <li key={exam.id} className="flex items-center gap-3 rounded-xl bg-surface-2 px-4 py-3 text-sm">
                         <span className="min-w-0 flex-1">
                           <span className="block font-semibold">{formatDateTime(exam.finishedAt)}</span>
-                          <span className="text-muted">שאלות {exam.chosenSlots.join(', ')}{exam.notes ? ` · ${exam.notes}` : ''}</span>
+                          <span className="text-muted">שאלות {exam.chosenSlots.map((slot) => examNumber(exam.questionnaire, slot)).sort((a, b) => a - b).join(', ')}{exam.notes ? ` · ${exam.notes}` : ''}</span>
                         </span>
                         <b className="text-xl tabular-nums text-primary">{formatScore(exam.score)}</b>
                         <Button size="sm" variant="ghost" icon={<Trash2 size={15} />} aria-label="מחיקת סימולציה" onClick={() => actions.deleteExam(exam.id)} />

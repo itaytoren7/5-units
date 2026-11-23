@@ -70,7 +70,7 @@ export function PracticeHub() {
           label="שאלה"
           value={slotParam}
           onChange={(next) => setParam('slot', next)}
-          options={[{ value: 'all', label: 'כל השאלות' }, ...slotsWithProblems.map((slot) => ({ value: String(slot.number), label: `שאלה ${slot.number}`, title: slot.title }))]}
+          options={[{ value: 'all', label: 'כל השאלות' }, ...slotsWithProblems.map((slot) => ({ value: String(slot.number), label: `שאלה ${slot.examNumber ?? slot.number}`, title: slot.title }))]}
         />
         <Segmented
           label="סטטוס"
@@ -94,7 +94,7 @@ export function PracticeHub() {
             .map((slot) => (
               <section key={slot.number}>
                 <div className="mb-3 flex flex-wrap items-center gap-3">
-                  <span className={`grid h-10 w-10 place-items-center rounded-xl text-base font-bold ${slot.priority === 'yellow' ? 'bg-yellow-soft text-yellow' : 'bg-blue-soft text-blue'}`}>{slot.number}</span>
+                  <span className={`grid h-10 w-10 place-items-center rounded-xl text-base font-bold ${slot.priority === 'yellow' ? 'bg-yellow-soft text-yellow' : 'bg-blue-soft text-blue'}`}>{slot.examNumber ?? slot.number}</span>
                   <h2 className="text-xl font-bold">{slot.title}</h2>
                   <PriorityBadge priority={slot.priority} />
                 </div>

@@ -29,9 +29,11 @@ function fitter(points: Pt[], pad = 30): Mapper {
 
 function Text({ x, y, children, anchor = 'middle', size = FONT, color, bold, baseline = 'middle' }: { x: number; y: number; children: ReactNode; anchor?: 'start' | 'middle' | 'end'; size?: number; color?: string; bold?: boolean; baseline?: 'middle' | 'hanging' | 'auto' }) {
   const hebrew = /[\u0590-\u05FF]/.test(String(children));
+  // In a Hebrew label, keep each formula / number run left-to-right ("x+9", "(6, 180)", "−7") with bidi isolates.
+  const content = hebrew && typeof children === 'string' ? children.replace(/[A-Za-z0-9(\u2212-][A-Za-z0-9+\-\u2212*/^=.,()%: ]*[A-Za-z0-9)%]|[A-Za-z0-9]/g, (run) => `\u2066${run}\u2069`) : children;
   return (
     <text x={x} y={y} fontSize={size} textAnchor={anchor} dominantBaseline={baseline} fill={color ?? 'currentColor'} stroke="none" fontWeight={bold ? 700 : 500} direction={hebrew ? 'rtl' : undefined}>
-      {children}
+      {content}
     </text>
   );
 }

@@ -1,7 +1,7 @@
 import type { LessonContent } from '../types';
 
 /**
- * Lessons of the calculus chapter (questionnaire 806), part B: the relation between f and f′,
+ * Lessons of the calculus chapter (questionnaire 571 (internal code 35581)), part B: the relation between f and f′,
  * graphical extremum problems, antiderivatives, areas and ∫f′ = f(b) − f(a), plus the chapter review.
  * Figures are drawn to scale from the function model that the tests (calculus-b.test.ts) verify.
  * מיקוד 2026: no integrals of square-root or trigonometric functions, no polynomial division,

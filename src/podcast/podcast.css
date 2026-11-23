@@ -1,0 +1,115 @@
+/* Podcast page: episode list, inline player, running captions and the mini dock.
+   Only the app's tokens are used, so light and dark mode come for free. */
+
+:root {
+  --pod-out: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* ---- Episode list ---- */
+.pod-list { list-style: none; margin: 0; padding: 0; }
+.pod-item + .pod-item { border-top: 1px solid var(--border); }
+.pod-item:first-child .pod-row { border-start-start-radius: 20px; border-start-end-radius: 20px; }
+.pod-item:last-child > .pod-row { border-end-start-radius: 20px; border-end-end-radius: 20px; }
+
+.pod-row {
+  position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 0.85rem;
+  min-height: 68px; padding: 0.7rem 1rem; transition: background var(--dur-fast);
+}
+@media (hover: hover) and (pointer: fine) { .pod-row:hover { background: var(--surface-2); } }
+.pod-item[data-active='true'] > .pod-row { background: var(--surface-2); }
+.pod-item[data-active='true'] > .pod-row { border-end-start-radius: 0; border-end-end-radius: 0; }
+
+.pod-play {
+  display: grid; place-items: center; width: 44px; height: 44px; border-radius: 999px; border: 0;
+  background: var(--primary-soft); color: var(--primary); cursor: pointer;
+  transition: transform 160ms var(--pod-out), background var(--dur-fast), color var(--dur-fast);
+}
+.pod-play:active { transform: scale(0.94); }
+.pod-play[data-playing='true'] { background: var(--primary); color: var(--on-primary); }
+.pod-play svg { translate: 1px 0; }
+.pod-play[data-playing='true'] svg { translate: 0 0; }
+
+.pod-title-btn { display: block; width: 100%; text-align: start; background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; }
+.pod-title { font-weight: 600; line-height: 1.35; }
+.pod-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 0.5rem; margin-top: 2px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.pod-meta-done { color: var(--green); display: inline-flex; align-items: center; gap: 0.2rem; }
+.pod-id { font-size: 13px; font-weight: 700; color: var(--muted); min-width: 2ch; text-align: center; }
+
+.pod-bar { position: absolute; inset-inline: 1rem; bottom: 0; height: 2px; border-radius: 2px; background: var(--border); overflow: hidden; }
+.pod-item[data-active='true'] .pod-bar { display: none; }
+.pod-bar > i { display: block; height: 100%; background: var(--primary); transition: width 600ms var(--pod-out); }
+
+/* ---- Inline player (expands under the active row) ---- */
+.pod-expand { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 300ms var(--pod-out); }
+.pod-expand[data-open='true'] { grid-template-rows: 1fr; }
+.pod-expand > div { overflow: hidden; min-height: 0; }
+.pod-player { display: flex; flex-direction: column; gap: 0.6rem; padding: 0.25rem 1rem 1rem; background: var(--surface-2); border-end-start-radius: 20px; border-end-end-radius: 20px; }
+.pod-item:not(:last-child) .pod-player { border-radius: 0; }
+
+.pod-scrub { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 0.6rem; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.pod-scrub input[type='range'] { width: 100%; height: 28px; margin: 0; accent-color: var(--primary); cursor: pointer; }
+
+.pod-controls { display: flex; align-items: center; justify-content: center; gap: 0.6rem; }
+.pod-ctl {
+  position: relative; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 999px; border: 0;
+  background: transparent; color: var(--text); cursor: pointer; transition: transform 160ms var(--pod-out), background var(--dur-fast);
+}
+.pod-ctl:active { transform: scale(0.94); }
+@media (hover: hover) and (pointer: fine) { .pod-ctl:hover { background: color-mix(in srgb, var(--text) 7%, transparent); } }
+.pod-ctl small { position: absolute; inset: 0; display: grid; place-items: center; padding-top: 1px; font-size: 9px; font-weight: 700; letter-spacing: -0.02em; }
+.pod-ctl-main { width: 56px; height: 56px; background: var(--primary); color: var(--on-primary); box-shadow: var(--shadow-sm); }
+@media (hover: hover) and (pointer: fine) { .pod-ctl-main:hover { background: var(--primary-strong); } }
+.pod-ctl-main svg { translate: 1px 0; }
+.pod-ctl-main[data-playing='true'] svg { translate: 0 0; }
+.pod-ctl-main[data-waiting='true'] { animation: pulse-soft 1.2s ease-in-out infinite; }
+.pod-ctl-right { margin-inline-start: auto; }
+.pod-ctl-right[aria-pressed='true'] { color: var(--primary); background: var(--primary-soft); }
+
+/* ---- Captions ---- */
+.pod-captions-note { margin: 0.25rem 0.5rem 0.5rem; font-size: 14px; color: var(--muted); }
+.pod-captions-wrap { position: relative; }
+.pod-captions {
+  position: relative; list-style: none; margin: 0; padding: 2.75rem 0.25rem; max-height: 300px; overflow-y: auto;
+  overscroll-behavior: contain; scrollbar-width: none;
+  mask-image: linear-gradient(to bottom, transparent, #000 16%, #000 84%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 16%, #000 84%, transparent);
+}
+.pod-captions::-webkit-scrollbar { display: none; }
+@media (min-width: 1024px) { .pod-captions { max-height: 360px; } }
+.pod-cue { padding: 0.1rem 0; }
+.pod-cue > button {
+  display: block; width: 100%; text-align: start; background: none; border: 0; padding: 0.3rem 0.55rem; border-radius: 10px;
+  font: inherit; font-size: 19px; line-height: 1.5; font-weight: 600; color: var(--muted); opacity: 0.5; cursor: pointer;
+  transition: color 240ms ease, opacity 240ms ease, background var(--dur-fast);
+}
+.pod-cue[data-state='past'] > button { opacity: 0.35; }
+.pod-cue[data-state='active'] > button { color: var(--text); opacity: 1; }
+@media (hover: hover) and (pointer: fine) { .pod-cue > button:hover { opacity: 0.85; background: color-mix(in srgb, var(--text) 6%, transparent); } }
+.pod-speaker { display: block; margin: 0.9rem 0.55rem 0; font-size: 12px; font-weight: 700; color: var(--muted); }
+.pod-speaker-yael { color: var(--primary); }
+.pod-cue:first-child .pod-speaker { margin-top: 0; }
+.pod-return {
+  position: absolute; bottom: 0.6rem; inset-inline: 0; margin-inline: auto; width: fit-content; border: 0; border-radius: 999px;
+  padding: 0.4rem 0.9rem; background: var(--text); color: var(--bg); font: inherit; font-size: 13px; font-weight: 600; box-shadow: var(--shadow-md);
+  animation: rise-in var(--dur) var(--ease) both; cursor: pointer;
+}
+
+/* ---- Mini dock (shows when the active row scrolls out of view) ---- */
+.pod-dock {
+  position: fixed; z-index: 35; inset-inline: 12px; bottom: calc(76px + env(safe-area-inset-bottom));
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 0.6rem; padding: 0.45rem 0.6rem 0.45rem 0.9rem;
+  border-radius: 18px; border: 1px solid var(--border); background: color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter: blur(14px);
+  box-shadow: var(--shadow-lg); transform: translateY(12px); opacity: 0; pointer-events: none;
+  transition: transform 250ms var(--pod-out), opacity 200ms ease;
+}
+.pod-dock[data-visible='true'] { transform: none; opacity: 1; pointer-events: auto; }
+@media (min-width: 1024px) { .pod-dock { bottom: 20px; inset-inline-start: 296px; inset-inline-end: 24px; max-width: 640px; margin-inline: auto; } }
+.pod-dock-text { min-width: 0; }
+.pod-dock-title { display: block; font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pod-dock-sub { display: block; font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+.pod-dock-text button { background: none; border: 0; padding: 0; font: inherit; color: inherit; text-align: start; width: 100%; cursor: pointer; }
+
+/* ---- Chapter header & loading ---- */
+.pod-chapter { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+.pod-num { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 12px; background: var(--primary-soft); color: var(--primary); font-weight: 700; flex: 0 0 auto; }
+.pod-skeleton { height: 68px; border-radius: 16px; background: var(--surface-2); animation: pulse-soft 1.4s ease-in-out infinite; }

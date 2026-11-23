@@ -45,7 +45,7 @@ describe('study planner', () => {
       const gap = daysBetween(sim.date, '2026-07-05');
       expect(gap).toBeGreaterThan(0);
       expect(gap).toBeLessThanOrEqual(28);
-      expect(sim.minutes).toBe(240);
+      expect(sim.minutes).toBe(225);
     }
   });
 

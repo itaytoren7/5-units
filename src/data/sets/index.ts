@@ -1,8 +1,11 @@
+import { setsCatalog } from './catalog';
+import { registeredSets } from './registry';
 import type { ExerciseSet } from './types';
-import { trigRightTriangle } from './trig-right-triangle';
-import { trigUnitCircle } from './trig-unit-circle';
 
-export const sets: ExerciseSet[] = [trigRightTriangle, trigUnitCircle];
+const order = new Map(setsCatalog.map((entry, index) => [entry.id, index]));
+
+/** Every written set, in catalogue (study) order. Set files register themselves, see ./registry. */
+export const sets: ExerciseSet[] = [...registeredSets].sort((a, b) => (order.get(a.id) ?? Infinity) - (order.get(b.id) ?? Infinity));
 
 export function setById(id: string | undefined): ExerciseSet | undefined {
   return id ? sets.find((set) => set.id === id) : undefined;

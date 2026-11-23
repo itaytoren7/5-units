@@ -7,6 +7,7 @@ import { combinedProgress, lessonProgress } from '../lib/lessonProgress';
 import { questionnaireByCode, topicOf } from '../lib/questionnaires';
 import { useStore } from '../state/store';
 import { NotFound } from './NotFound';
+import { examNumber } from '@/lib/questionnaires';
 
 export function ChapterPage() {
   const { chapterId } = useParams();
@@ -52,7 +53,7 @@ export function ChapterPage() {
           })}
           {chapter.slots.map((slot) => (
             <Button key={slot} size="sm" to={`/practice?code=${questionnaire.code}&slot=${slot}`} icon={<PencilLine size={15} />}>
-              שאלות בגרות: שאלה {slot}
+              שאלות בגרות: שאלה {examNumber(questionnaire.code, slot)}
             </Button>
           ))}
           <Button
@@ -72,7 +73,7 @@ export function ChapterPage() {
         </div>
       </PageHeader>
 
-      <ol className="lesson-path">
+      <ol className="lesson-path stagger">
         {list.map((lesson) => {
           const scope = isInScope(lesson.status);
           const lessonState = lessonProgress(lesson, state);

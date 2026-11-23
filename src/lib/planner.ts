@@ -122,7 +122,7 @@ function studySessions(questionnaire: Questionnaire, input: PlannerInput, deadli
           kind: 'study',
           slot: slot.number,
           priority: slot.priority,
-          title: `שאלה ${slot.number} · ${slot.title}${pass.note}`,
+          title: `שאלה ${slot.examNumber ?? slot.number} · ${slot.title}${pass.note}`,
           subtopicIds: chunk.map((subtopic) => subtopic.id),
           minutes: chunkMinutes,
           deadlineWeek,

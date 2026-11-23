@@ -4,3 +4,6 @@ dist
 .DS_Store
 *.tsbuildinfo
 design-shots
+.env
+*.wav
+.parts/

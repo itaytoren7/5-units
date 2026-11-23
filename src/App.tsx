@@ -23,6 +23,7 @@ const LessonPage = lazy(() => import('./pages/LessonPage').then((module) => ({ d
 const SetsHub = lazy(() => import('./pages/SetsHub').then((module) => ({ default: module.SetsHub })));
 const SetPlayer = lazy(() => import('./pages/SetPlayer').then((module) => ({ default: module.SetPlayer })));
 const FormulaSheetPage = lazy(() => import('./pages/FormulaSheetPage').then((module) => ({ default: module.FormulaSheetPage })));
+const PodcastPage = lazy(() => import('./pages/PodcastPage').then((module) => ({ default: module.PodcastPage })));
 
 function Loading() {
   return (
@@ -54,6 +55,7 @@ export default function App() {
           <Route path="/mistakes" element={<MistakesPage />} />
           <Route path="/past-exams" element={<PastExamsPage />} />
           <Route path="/formulas" element={<FormulaSheetPage />} />
+          <Route path="/podcast" element={<PodcastPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/more" element={<MorePage />} />
           <Route path="/design-preview" element={<DesignPreview />} />

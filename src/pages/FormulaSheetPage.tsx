@@ -36,7 +36,7 @@ export function FormulaSheetPage() {
         </p>
       </div>
       <h2 className="print-only mb-3 text-xl font-bold">
-        דף נוסחאות אישי · שאלון {questionnaire.nickname} ({questionnaire.code}) · סיכום אישי, לא דף הנוסחאות הרשמי
+        דף נוסחאות אישי · שאלון {questionnaire.nickname} ({questionnaire.displayCode}) · סיכום אישי, לא דף הנוסחאות הרשמי
       </h2>
       {topics.length === 0 ? (
         <EmptyState icon={<Sigma size={22} />} title="אין נוסחאות עדיין" />

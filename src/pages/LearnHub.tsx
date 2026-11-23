@@ -5,6 +5,7 @@ import { Badge, Notice, PageHeader, ProgressRing } from '../components/ui';
 import { hasLearnedFilter } from '../lib/learned';
 import { combinedProgress } from '../lib/lessonProgress';
 import { useStore } from '../state/store';
+import { examNumber } from '@/lib/questionnaires';
 
 export function LearnHub() {
   const { state } = useStore();
@@ -22,7 +23,7 @@ export function LearnHub() {
           </Notice>
         </div>
       )}
-      <div className="grid gap-5 md:grid-cols-2">
+      <div className="stagger grid gap-5 md:grid-cols-2">
         {chapters.map((chapter) => {
           const list = lessonsOfChapter(chapter.id);
           const inScope = list.filter((lesson) => isInScope(lesson.status));
@@ -36,7 +37,7 @@ export function LearnHub() {
                   <div className="flex flex-wrap gap-1.5">
                     {chapter.slots.map((slot) => (
                       <Badge key={slot} tone="primary" size="sm">
-                        שאלה {slot}
+                        שאלה {examNumber(chapter.questionnaire, slot)}
                       </Badge>
                     ))}
                   </div>

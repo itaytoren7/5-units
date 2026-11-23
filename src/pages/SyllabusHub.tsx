@@ -14,15 +14,15 @@ export function SyllabusHub() {
     <>
       <PageHeader
         title="מפת הסילבוס"
-        description="שני השאלונים לפי מבנה הבחינה והמיקוד לקיץ 2026. סדר הלמידה המומלץ: צהוב קודם, כחול בסוף."
+        description="שני השאלונים לפי מבנה הבחינה והמיקוד לחורף ולקיץ 2027. הצבעים הם סדר למידה מומלץ של האתר: צהוב קודם, כחול בסוף."
         actions={
           <label className="flex items-center gap-3 text-base">
-            <span>{isFocus ? 'מיקוד 2026' : 'הסילבוס המלא'}</span>
+            <span>{isFocus ? 'מיקוד 2027' : 'הסילבוס המלא'}</span>
             <Switch checked={isFocus} onChange={(next) => actions.setFocusMode(next ? 'focus-2026' : 'full')} label="מצב מיקוד" />
           </label>
         }
       />
-      <div className="grid gap-5 md:grid-cols-2">
+      <div className="stagger grid gap-5 md:grid-cols-2">
         {questionnaireList.map((questionnaire) => {
           const progress = progressOf(questionnaire, state.ratings);
           return (
@@ -30,7 +30,7 @@ export function SyllabusHub() {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <Badge tone={questionnaire.code === '35581' ? 'primary' : 'green'}>שאלון {questionnaire.nickname}</Badge>
-                  <h2 className="mt-2 text-2xl font-bold">שאלון {questionnaire.code}</h2>
+                  <h2 className="mt-2 text-2xl font-bold">שאלון {questionnaire.displayCode}</h2>
                   <p className="mt-1 text-sm text-muted">
                     {formatDuration(questionnaire.durationMinutes)} · {questionnaire.questionsToAnswer} מתוך {questionnaire.totalQuestions} · {formatPoints(questionnaire.pointsPerQuestion)} נק׳ לשאלה · {questionnaire.weightPercent}% מהציון
                   </p>

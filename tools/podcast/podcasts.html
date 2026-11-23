@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>פודקאסט – מתמטיקה 5 יח״ל</title>
+<style>
+  :root {
+    --bg: #f7f7f5;
+    --card: #ffffff;
+    --text: #1f2328;
+    --muted: #6b7280;
+    --accent: #2563eb;
+    --border: #e5e7eb;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #16181d; --card: #1f2229; --text: #e8eaed; --muted: #9aa0a6; --accent: #7aa2ff; --border: #2e323b; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { margin: 0 0 4px; font-size: 1.8rem; }
+  .sub { margin: 0 0 24px; color: var(--muted); }
+  .speed { display: flex; gap: 8px; align-items: center; margin-bottom: 28px; flex-wrap: wrap; }
+  .speed span { color: var(--muted); font-size: .95rem; }
+  .speed button {
+    border: 1px solid var(--border); background: var(--card); color: var(--text);
+    border-radius: 999px; padding: 4px 14px; cursor: pointer; font: inherit;
+  }
+  .speed button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  h2 { font-size: 1.2rem; margin: 32px 0 12px; }
+  .ep {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px 16px; margin-bottom: 10px;
+  }
+  .ep h3 { margin: 0 0 8px; font-size: 1rem; font-weight: 600; }
+  .ep .id { color: var(--accent); margin-left: 6px; }
+  audio { width: 100%; }
+  .empty { color: var(--muted); background: var(--card); border: 1px dashed var(--border); border-radius: 12px; padding: 20px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>פודקאסט – מתמטיקה 5 יח״ל</h1>
+  <p class="sub">יעל ועומר עוברים על כל נושאי הבגרות, תת-פרק אחרי תת-פרק.</p>
+
+  <div class="speed" id="speed">
+    <span>מהירות:</span>
+    <button data-rate="1" class="on">×1</button>
+    <button data-rate="1.25">×1.25</button>
+    <button data-rate="1.5">×1.5</button>
+  </div>
+
+  <div id="list"></div>
+</main>
+
+<!-- הסקריפט make_podcast.py יוצר את הקובץ הזה -->
+<script src="episodes/episodes.js"></script>
+<script>
+  const episodes = window.PODCAST_EPISODES || [];
+  const list = document.getElementById("list");
+  let rate = Number(localStorage.getItem("podcastRate") || 1);
+
+  if (!episodes.length) {
+    list.innerHTML = '<p class="empty">עדיין אין פרקים. הריצו את make_podcast.py כדי ליצור אותם.</p>';
+  }
+
+  let topic = null;
+  for (const ep of episodes) {
+    if (ep.topic !== topic) {
+      topic = ep.topic;
+      const h = document.createElement("h2");
+      h.textContent = topic;
+      list.appendChild(h);
+    }
+    const box = document.createElement("section");
+    box.className = "ep";
+    const title = document.createElement("h3");
+    const id = document.createElement("span");
+    id.className = "id";
+    id.textContent = ep.id;
+    title.append(id, ep.title);
+    const audio = document.createElement("audio");
+    audio.controls = true;
+    audio.preload = "none";
+    audio.src = ep.file;
+    audio.dataset.id = ep.id;
+    // ממשיך מהמקום שבו הפסקתם
+    audio.addEventListener("loadedmetadata", () => {
+      const saved = Number(localStorage.getItem("podcastPos-" + ep.id) || 0);
+      if (saved > 5 && saved < audio.duration - 5) audio.currentTime = saved;
+      audio.playbackRate = rate;
+    });
+    audio.addEventListener("timeupdate", () => {
+      localStorage.setItem("podcastPos-" + ep.id, Math.floor(audio.currentTime));
+    });
+    // מנגן רק פרק אחד בכל רגע
+    audio.addEventListener("play", () => {
+      audio.playbackRate = rate;
+      document.querySelectorAll("audio").forEach(a => { if (a !== audio) a.pause(); });
+    });
+    box.append(title, audio);
+    list.appendChild(box);
+  }
+
+  const buttons = document.querySelectorAll("#speed button");
+  function setRate(r) {
+    rate = r;
+    localStorage.setItem("podcastRate", r);
+    buttons.forEach(b => b.classList.toggle("on", Number(b.dataset.rate) === r));
+    document.querySelectorAll("audio").forEach(a => (a.playbackRate = r));
+  }
+  buttons.forEach(b => b.addEventListener("click", () => setRate(Number(b.dataset.rate))));
+  setRate(rate);
+</script>
+</body>
+</html>

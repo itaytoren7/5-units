@@ -49,7 +49,7 @@ export function DailyExercise({ today, hour }: { today: string; hour: number }) 
   const result = exerciseResult(state, exercise.id);
   const doneToday = result === 'correct' && record?.lastPracticedAt.slice(0, 10) === today;
   return (
-    <Card className="daily-card">
+    <Card className="daily-card card-glow">
       <SectionTitle
         icon={<CalendarCheck size={18} />}
         title="התרגיל היומי"
