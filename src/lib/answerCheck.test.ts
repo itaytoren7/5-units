@@ -40,3 +40,13 @@ describe('checkAnswer', () => {
     expect(checkAnswer('???', 1)).toBe('invalid');
   });
 });
+
+describe('natural logarithm notation', () => {
+  it('reads ln as the natural log', () => {
+    expect(parseAnswer('ln(2)')).toBeCloseTo(Math.LN2, 10);
+    expect(parseAnswer('ln2')).toBeCloseTo(Math.LN2, 10);
+    expect(parseAnswer('1+ln 2')).toBeCloseTo(1 + Math.LN2, 10);
+    expect(parseAnswer('ln(2)/2')).toBeCloseTo(Math.LN2 / 2, 10);
+    expect(parseAnswer('ln e')).toBeCloseTo(1, 10);
+  });
+});

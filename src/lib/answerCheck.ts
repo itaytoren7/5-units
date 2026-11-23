@@ -13,6 +13,9 @@ export function parseAnswer(raw: string): number | null {
     .replace(/×|·/g, '*')
     .replace(/÷/g, '/')
     .replace(/π/g, 'pi')
+    // Bagrut notation: ln x is the natural log (mathjs calls it log), log₁₀ stays log10.
+    .replace(/\bln\s*\(/gi, 'log(')
+    .replace(/\bln\s*([0-9.]+|e\b)/gi, 'log($1)')
     .replace(/°/g, '')
     .replace(/%$/, '')
     .replace(/√\s*\(/g, 'sqrt(')
