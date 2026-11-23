@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "id": "1ב",
+    "title": "סדרה הנדסית וסדרה הנדסית אינסופית",
+    "topic": "פרק 1: סדרות ואינדוקציה",
+    "file": "ep-1b.m4a",
+    "captions": "ep-1b.captions.json",
+    "duration": 498.6
+  },
+  {
+    "id": "1ג",
+    "title": "כלל נסיגה, הוכחות על סדרות וסדרות שזורות",
+    "topic": "פרק 1: סדרות ואינדוקציה",
+    "file": "ep-1c.m4a",
+    "captions": "ep-1c.captions.json",
+    "duration": 450.8
+  }
+]

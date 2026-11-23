@@ -12,7 +12,7 @@
 שם נוצרים ep-1a.mp3, ep-1a.captions.json ו-episodes.json (רשימת הפרקים שהאתר קורא).
 
 צריך:
-    pip3 install google-genai
+    (אין צורך בספריות נוספות: הסקריפט פונה ל-API ישירות)
     מפתח API של Gemini במשתנה הסביבה GEMINI_API_KEY, או בקובץ .env בתיקייה הזאת (ראו הוראות.md)
     ffmpeg (לא חובה): אם הוא מותקן הקבצים יישמרו כ-MP3. ב-Mac בלי ffmpeg הם יישמרו כ-M4A, ואחרת כ-WAV.
 """
@@ -46,25 +46,18 @@ OUT_DIR = HERE.parents[1] / "public" / "podcast" / "episodes"
 # קטעי ביניים בזמן היצירה. לא עולים ל-git ולא לאתר.
 PARTS_DIR = HERE / ".parts"
 
-# מודלים של Gemini להקראה. אם הראשון לא זמין, הסקריפט מנסה את הבא.
+# מודל ההקראה של Gemini. המודל החדש מקבל דובר מפורש לכל שורה, ולכן הקולות לא מתערבבים.
 # את שמות המודלים העדכניים אפשר לראות ב-Google AI Studio.
-MODELS = [
-    "gemini-3.1-flash-tts-preview",
-    "gemini-2.5-flash-preview-tts",
-]
+MODEL = "gemini-3.8-flash-tts"
+API_URL = "https://generativelanguage.googleapis.com/v1beta/interactions"
 
 # קולות מוכנים של Gemini. Sulafat הוא קול נשי, Puck קול גברי.
 # קולות נשיים נוספים: Kore, Zephyr, Vindemiatrix, Aoede. גבריים: Charon, Umbriel, Zubenelgenubi.
 VOICE_YAEL = "Sulafat"
 VOICE_OMER = "Puck"
 
-# הנחיית סגנון שנשלחת לפני כל קטע
-STYLE = (
-    "TTS the following Hebrew conversation between Yael and Omer. "
-    "Read every word exactly as written, in Hebrew, in a warm, clear and friendly "
-    "educational podcast style, at a calm pace that suits high-school students. "
-    "Yael is a woman and Omer is a man."
-)
+# הנחיית סגנון שמצורפת לכל שורה
+STYLE = "Warm, clear and friendly educational podcast voice, in Hebrew, at a calm pace that suits high-school students."
 
 # קטעים קצרים שומרים על איכות ההקראה. כל קטע הוא כ-2 דקות שמע.
 CHUNK_CHARS = 1500
@@ -154,36 +147,12 @@ def load_env_file(path: Path):
 
 
 def make_client():
+    """מחזיר את מפתח ה-API (נקרא מהסביבה או מ-.env)."""
     load_env_file(HERE / ".env")
     key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
     if not key:
         sys.exit("לא נמצא מפתח API. הגדירו את המשתנה GEMINI_API_KEY (ראו הוראות.md).")
-    try:
-        from google import genai
-    except ImportError:
-        sys.exit("חסרה הספרייה google-genai. הריצו: pip3 install google-genai")
-    return genai.Client(api_key=key)
-
-
-def speech_config():
-    from google.genai import types
-
-    def speaker(name, voice):
-        return types.SpeakerVoiceConfig(
-            speaker=name,
-            voice_config=types.VoiceConfig(
-                prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=voice)
-            ),
-        )
-
-    return types.GenerateContentConfig(
-        response_modalities=["AUDIO"],
-        speech_config=types.SpeechConfig(
-            multi_speaker_voice_config=types.MultiSpeakerVoiceConfig(
-                speaker_voice_configs=[speaker("Yael", VOICE_YAEL), speaker("Omer", VOICE_OMER)]
-            )
-        ),
-    )
+    return key
 
 
 def to_pcm(data, mime_type: str = "") -> bytes:
@@ -199,28 +168,48 @@ def to_pcm(data, mime_type: str = "") -> bytes:
     return data
 
 
-def synthesize(client, model_state, text: str) -> bytes:
-    """שולח קטע אחד להקראה, עם ניסיונות חוזרים ומעבר למודל הבא במקרה הצורך."""
-    config = speech_config()
+def synthesize(key, chunk) -> bytes:
+    """שולח קטע אחד להקראה: כל שורה עם הדובר שלה. ניסיונות חוזרים במקרה של עומס."""
+    import urllib.error
+    import urllib.request
+
+    body = {
+        "model": MODEL,
+        "input": [{"type": "user_input", "content": [
+            {"type": "text", "text": text, "annotations": [{"type": "speech_metadata", "speaker": speaker, "style": STYLE}]}
+            for speaker, text in chunk
+        ]}],
+        "response_format": {"type": "audio"},
+        "generation_config": {"speech_config": {"speakers": [
+            {"speaker": "Yael", "voice": VOICE_YAEL},
+            {"speaker": "Omer", "voice": VOICE_OMER},
+        ]}},
+    }
+    request = urllib.request.Request(
+        API_URL, data=json.dumps(body).encode("utf-8"),
+        headers={"Content-Type": "application/json", "x-goog-api-key": key},
+    )
     attempt = 0
     while True:
-        model = MODELS[model_state["index"]]
         try:
-            response = client.models.generate_content(model=model, contents=text, config=config)
-            part = response.candidates[0].content.parts[0]
-            return to_pcm(part.inline_data.data, part.inline_data.mime_type)
+            with urllib.request.urlopen(request, timeout=900) as response:
+                payload = json.load(response)
+            for step in payload.get("steps", []):
+                if step.get("type") != "model_output":
+                    continue
+                for part in step.get("content", []):
+                    if part.get("type") == "audio":
+                        return to_pcm(part["data"], part.get("mime_type", ""))
+            raise RuntimeError("התשובה לא הכילה אודיו")
         except Exception as err:  # noqa: BLE001
-            message = str(err)
-            not_found = "404" in message or "NOT_FOUND" in message or "not found" in message.lower()
-            if not_found and model_state["index"] + 1 < len(MODELS):
-                model_state["index"] += 1
-                print(f"  המודל {model} לא זמין, עוברים ל-{MODELS[model_state['index']]}")
-                continue
+            message = err.read().decode("utf-8", "replace")[:200] if isinstance(err, urllib.error.HTTPError) else str(err)
+            if isinstance(err, urllib.error.HTTPError) and err.code == 404:
+                sys.exit(f"המודל {MODEL} לא זמין. בדקו ב-Google AI Studio את שם מודל ההקראה העדכני ועדכנו את MODEL בראש הסקריפט.")
             attempt += 1
-            if attempt > 5:
+            if attempt > 6:
                 raise
-            wait = min(60, 5 * 2 ** (attempt - 1))
-            print(f"  שגיאה ({message[:120]}). מנסים שוב בעוד {wait} שניות...")
+            wait = min(90, 5 * 2 ** (attempt - 1))
+            print(f"  שגיאה ({message}). מנסים שוב בעוד {wait} שניות...")
             time.sleep(wait)
 
 
@@ -276,7 +265,7 @@ def captions_from_audio(episode, audio_path: Path, captions_path: Path):
     return captions
 
 
-def build_episode(client, model_state, episode, out_dir: Path, previous=None, force=False, captions_only=False) -> dict:
+def build_episode(client, episode, out_dir: Path, previous=None, force=False, captions_only=False) -> dict:
     """יוצר (או משלים) פרק אחד ומחזיר את הרשומה שלו לרשימת הפרקים."""
     slug = episode["slug"]
     captions_path = out_dir / f"{slug}.captions.json"
@@ -307,8 +296,7 @@ def build_episode(client, model_state, episode, out_dir: Path, previous=None, fo
                 pcm = part_file.read_bytes()
             else:
                 print(f"{episode['id']}: מקריא קטע {i} מתוך {len(chunks)}...")
-                text = STYLE + "\n\n" + "\n".join(f"{s}: {t}" for s, t in chunk)
-                pcm = synthesize(client, model_state, text)
+                pcm = synthesize(client, chunk)
                 part_file.write_bytes(pcm)
             chunk_cues = make_cues(chunk, SPEAKER_HEBREW)
             segments.append((seconds_of(pcm_all), seconds_of(pcm_all + pcm), len(chunk_cues)))
@@ -401,12 +389,11 @@ def main():
     out_dir = OUT_DIR
     out_dir.mkdir(parents=True, exist_ok=True)
     client = None if args.captions else make_client()
-    model_state = {"index": 0}
     index = {k: v for k, v in load_index(out_dir).items() if k not in SKIP}
 
     for episode in episodes:
         entry = build_episode(
-            client, model_state, episode, out_dir,
+            client, episode, out_dir,
             previous=index.get(episode["id"]), force=args.force, captions_only=args.captions,
         )
         if entry:
