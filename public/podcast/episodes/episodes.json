@@ -166,5 +166,101 @@
     "file": "ep-6f.m4a",
     "captions": "ep-6f.captions.json",
     "duration": 451.4
+  },
+  {
+    "id": "7א",
+    "title": "שאלות תנועה",
+    "topic": "פרק 7: שאלות מילוליות",
+    "file": "ep-7a.m4a",
+    "captions": "ep-7a.captions.json",
+    "duration": 683.3
+  },
+  {
+    "id": "7ב",
+    "title": "שאלות אחוזים",
+    "topic": "פרק 7: שאלות מילוליות",
+    "file": "ep-7b.m4a",
+    "captions": "ep-7b.captions.json",
+    "duration": 606.0
+  },
+  {
+    "id": "7ג",
+    "title": "בעיות הספק",
+    "topic": "פרק 7: שאלות מילוליות",
+    "file": "ep-7c.m4a",
+    "captions": "ep-7c.captions.json",
+    "duration": 546.5
+  },
+  {
+    "id": "8א",
+    "title": "ישרים ומעגל",
+    "topic": "פרק 8: גאומטריה אנליטית",
+    "file": "ep-8a.m4a",
+    "captions": "ep-8a.captions.json",
+    "duration": 672.8
+  },
+  {
+    "id": "8ב",
+    "title": "אליפסה",
+    "topic": "פרק 8: גאומטריה אנליטית",
+    "file": "ep-8b.m4a",
+    "captions": "ep-8b.captions.json",
+    "duration": 684.1
+  },
+  {
+    "id": "8ג",
+    "title": "פרבולה",
+    "topic": "פרק 8: גאומטריה אנליטית",
+    "file": "ep-8c.m4a",
+    "captions": "ep-8c.captions.json",
+    "duration": 672.7
+  },
+  {
+    "id": "9א",
+    "title": "וקטורים גאומטריים",
+    "topic": "פרק 9: וקטורים",
+    "file": "ep-9a.m4a",
+    "captions": "ep-9a.captions.json",
+    "duration": 622.0
+  },
+  {
+    "id": "9ב",
+    "title": "הצגה אלגברית ומכפלה סקלרית",
+    "topic": "פרק 9: וקטורים",
+    "file": "ep-9b.m4a",
+    "captions": "ep-9b.captions.json",
+    "duration": 528.6
+  },
+  {
+    "id": "9ג",
+    "title": "ישרים ומישורים במרחב",
+    "topic": "פרק 9: וקטורים",
+    "file": "ep-9c.m4a",
+    "captions": "ep-9c.captions.json",
+    "duration": 740.0
+  },
+  {
+    "id": "9ד",
+    "title": "מרחקים וזווית בין מישורים",
+    "topic": "פרק 9: וקטורים",
+    "file": "ep-9d.m4a",
+    "captions": "ep-9d.captions.json",
+    "duration": 668.0
+  },
+  {
+    "id": "10א",
+    "title": "חוקי חזקות ולוגריתמים",
+    "topic": "פרק 10: חזקות, לוגריתמים וגדילה ודעיכה",
+    "file": "ep-10a.m4a",
+    "captions": "ep-10a.captions.json",
+    "duration": 685.2
+  },
+  {
+    "id": "10ב",
+    "title": "גדילה ודעיכה",
+    "topic": "פרק 10: חזקות, לוגריתמים וגדילה ודעיכה",
+    "file": "ep-10b.m4a",
+    "captions": "ep-10b.captions.json",
+    "duration": 698.9
   }
 ]
