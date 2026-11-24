@@ -46,6 +46,10 @@ export const chapterInfo: Record<number, { anchor: string; title: string }> = {
   4: { anchor: 'solid-trigonometry', title: 'טריגונומטריה במרחב' },
   5: { anchor: 'complex-numbers', title: 'מספרים מרוכבים' },
   6: { anchor: 'calculus', title: 'חשבון דיפרנציאלי ואינטגרלי' },
+  7: { anchor: 'word-problems', title: 'שאלות מילוליות' },
+  8: { anchor: 'analytic-geometry', title: 'גאומטריה אנליטית' },
+  9: { anchor: 'vectors', title: 'וקטורים' },
+  10: { anchor: 'exp-log', title: 'חזקות, לוגריתמים וגדילה ודעיכה' },
 };
 
 /** Syllabus topic id → podcast chapter anchor. Topics without episodes are simply absent. */
@@ -60,7 +64,11 @@ export const podcastAnchorByTopic: Record<string, string> = {
   'differential-calculus': 'calculus',
   'integral-calculus': 'calculus',
   'differential-integral': 'calculus',
-  'exponential-logarithms': 'calculus',
+  'word-problems': 'word-problems',
+  'analytic-geometry': 'analytic-geometry',
+  vectors: 'vectors',
+  'exponential-logarithms': 'exp-log',
+  'growth-decay': 'exp-log',
 };
 
 /** Parts of an episode that the 2027 מיקוד leaves out of the exam (keyed by the Hebrew episode label). */

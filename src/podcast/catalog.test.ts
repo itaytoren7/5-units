@@ -24,14 +24,14 @@ describe('groupEpisodes', () => {
     { id: '2א', title: 'יסודות', topic: 'פרק 2: הסתברות', file: 'ep-2a.mp3', duration: 300 },
     { id: '1ב', title: 'הנדסית', topic: 'פרק 1: סדרות ואינדוקציה', file: 'episodes/ep-1b.mp3' },
     { id: '1א', title: 'חשבונית', topic: 'פרק 1: סדרות ואינדוקציה', file: 'ep-1a.mp3', captions: 'ep-1a.captions.json' },
-    { id: '9א', title: 'בונוס', topic: 'פרק 9: משהו חדש', file: 'ep-9a.mp3' },
+    { id: '12א', title: 'בונוס', topic: 'פרק 12: משהו חדש', file: 'ep-12a.mp3' },
     { id: 'broken' },
     'not an object',
   ];
 
   it('groups by chapter in script order and skips malformed records', () => {
     const groups = groupEpisodes(raw);
-    expect(groups.map((group) => group.chapter)).toEqual([1, 2, 9]);
+    expect(groups.map((group) => group.chapter)).toEqual([1, 2, 12]);
     expect(groups[0].episodes.map((episode) => episode.id)).toEqual(['1א', '1ב']);
     expect(groups[0].anchor).toBe('sequences');
     expect(groups[0].title).toBe('סדרות ואינדוקציה');
@@ -39,7 +39,7 @@ describe('groupEpisodes', () => {
 
   it('keeps unknown chapters, with a generic anchor and the topic as title', () => {
     const bonus = groupEpisodes(raw)[2];
-    expect(bonus.anchor).toBe('chapter-9');
+    expect(bonus.anchor).toBe('chapter-12');
     expect(bonus.title).toBe('משהו חדש');
   });
 
